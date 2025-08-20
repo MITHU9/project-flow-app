@@ -14,6 +14,7 @@ import taskRoutes from "./routes/taskRoutes.js";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { errorHandler } from "./middlewares/errorHandler.js";
+import { moveTaskSocket } from "./sockets/taskSockets.js";
 
 const app = express();
 
@@ -38,13 +39,20 @@ connectSQL();
 // Socket.IO setup
 const server = createServer(app);
 const io = new Server(server, {
-  cors: { origin: "*" },
+  cors: { origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] },
 });
 
+// Socket connection
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-  socket.on("taskUpdated", (data) => {
-    io.emit("refreshTasks", data);
+  console.log("🔌 User connected:", socket.id);
+
+  // Listen for drag-and-drop events
+  socket.on("task:move", async (data) => {
+    await moveTaskSocket(io, data); // pass io to broadcast
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ User disconnected:", socket.id);
   });
 });
 

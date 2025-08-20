@@ -21,6 +21,9 @@ const taskSchema = new mongoose.Schema(
       enum: ["todo", "in-progress", "done"],
       default: "todo",
     },
+
+    order: { type: Number, default: 0 },
+
     comments: [
       {
         userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
