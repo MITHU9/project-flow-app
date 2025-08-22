@@ -40,11 +40,11 @@ const Register = () => {
 
         {/* OAuth Buttons */}
         <div className="flex flex-col gap-3 mb-6">
-          <button className="flex items-center justify-center gap-2 w-full border border-gray-300 rounded-lg py-2 hover:bg-gray-50 transition">
+          <button className="flex items-center justify-center gap-2 w-full border text-gray-600 border-gray-300 rounded-lg py-2 hover:bg-gray-50 transition">
             <Chrome className="w-5 h-5 text-red-500" />
             Continue with Google
           </button>
-          <button className="flex items-center justify-center gap-2 w-full border border-gray-300 rounded-lg py-2 hover:bg-gray-50 transition">
+          <button className="flex items-center justify-center gap-2 w-full border text-gray-600 border-gray-300 rounded-lg py-2 hover:bg-gray-50 transition">
             <Github className="w-5 h-5" />
             Continue with GitHub
           </button>
@@ -65,7 +65,7 @@ const Register = () => {
               type="text"
               placeholder="Name"
               {...register("name")}
-              className="border border-gray-300 pl-10 pr-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              className="border text-gray-700 border-gray-300 pl-10 pr-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
             />
           </div>
           {errors.name && (
@@ -78,7 +78,7 @@ const Register = () => {
               type="email"
               placeholder="Email"
               {...register("email")}
-              className="border border-gray-300 pl-10 pr-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              className="border text-gray-600 border-gray-300 pl-10 pr-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
             />
           </div>
           {errors.email && (
@@ -91,7 +91,7 @@ const Register = () => {
               type="password"
               placeholder="Password"
               {...register("password")}
-              className="border border-gray-300 pl-10 pr-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+              className="border text-gray-700 border-gray-300 pl-10 pr-3 py-2 w-full rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
             />
           </div>
           {errors.password && (

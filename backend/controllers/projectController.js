@@ -1,48 +1,74 @@
 import Project from "../models/Project.js";
+import Board from "../models/Board.js";
+import Task from "../models/Task.js";
 
-/**
- * @desc Create project
- */
+// Create new project
 export const createProject = async (req, res) => {
   try {
-    const project = await Project.create(req.body);
+    const { name, description, color } = req.body;
+
+    // Create default boards
+    const boards = await Board.insertMany([
+      { title: "To Do", tasks: [] },
+      { title: "In Progress", tasks: [] },
+      { title: "Done", tasks: [] },
+    ]);
+
+    const project = new Project({
+      name,
+      description,
+      color,
+      boards: boards.map((b) => b._id),
+    });
+
+    await project.save();
+
     res.status(201).json(project);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Failed to create project" });
   }
 };
 
-/**
- * @desc Get all projects
- */
+// Get all projects
 export const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find().populate("members", "name email");
+    const projects = await Project.find().populate({
+      path: "boards",
+      populate: {
+        path: "tasks",
+        populate: ["assignedUser", { path: "comments", populate: "author" }],
+      },
+    });
+
     res.json(projects);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch projects" });
   }
 };
 
-/**
- * @desc Get project by ID
- */
-export const getProject = async (req, res) => {
+// Get single project
+export const getProjectById = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id).populate(
-      "members",
-      "name email"
-    );
+    const project = await Project.findById(req.params.id).populate({
+      path: "boards",
+      populate: {
+        path: "tasks",
+        populate: ["assignedUser", { path: "comments", populate: "author" }],
+      },
+    });
+
     if (!project) return res.status(404).json({ message: "Project not found" });
+
     res.json(project);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch project" });
   }
 };
 
-/**
- * @desc Update project
- */
+// Update project
 export const updateProject = async (req, res) => {
   try {
     const project = await Project.findByIdAndUpdate(req.params.id, req.body, {
@@ -51,21 +77,24 @@ export const updateProject = async (req, res) => {
     if (!project) return res.status(404).json({ message: "Project not found" });
     res.json(project);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Failed to update project" });
   }
 };
 
-/**
- * @desc Delete project
- */
+// Delete project
 export const deleteProject = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id);
+    const project = await Project.findByIdAndDelete(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    await project.deleteOne();
-    res.json({ message: "Project deleted" });
+    // Optionally delete associated boards and tasks
+    await Board.deleteMany({ _id: { $in: project.boards } });
+    await Task.deleteMany({ board: { $in: project.boards } });
+
+    res.json({ message: "Project deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Failed to delete project" });
   }
 };

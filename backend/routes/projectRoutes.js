@@ -2,7 +2,7 @@ import express from "express";
 import {
   createProject,
   getProjects,
-  getProject,
+  getProjectById as getProject,
   updateProject,
   deleteProject,
 } from "../controllers/projectController.js";

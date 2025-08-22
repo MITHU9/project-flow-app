@@ -1,217 +1,169 @@
-import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { X, Plus } from "lucide-react";
-import { users } from "../data/dummyData";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { X } from "lucide-react";
+import { taskSchema } from "../validation/taskSchema";
 
-const AddTaskDialog = ({ isOpen, onClose, onSubmit }) => {
+const demoUsers = [
+  { id: 1, name: "Alice Johnson" },
+  { id: 2, name: "Bob Smith" },
+  { id: 3, name: "Charlie Brown" },
+  { id: 4, name: "Diana Prince" },
+];
+
+const TaskForm = ({ isModalOpen, onClose, onSubmit }) => {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
-    reset,
     formState: { errors },
   } = useForm({
-    defaultValues: {
-      title: "",
-      description: "",
-      assignedUserId: users[0]?.id || "",
-      deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split("T")[0],
-      priority: "medium",
-      status: "todo",
-      tags: [],
-    },
+    resolver: yupResolver(taskSchema),
   });
 
-  const tags = watch("tags") || [];
-  const [newTag, setNewTag] = useState("");
-
-  if (!isOpen) return null;
-
-  const handleAddTag = () => {
-    const trimmed = newTag.trim();
-    if (trimmed && !tags.includes(trimmed)) {
-      setValue("tags", [...tags, trimmed]);
-      setNewTag("");
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove) => {
-    setValue(
-      "tags",
-      tags.filter((tag) => tag !== tagToRemove)
-    );
-  };
-
-  const onFormSubmit = (data) => {
-    onSubmit(data);
-    reset();
-  };
+  if (!isModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Add New Task
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-          >
-            <X className="h-5 w-5 text-gray-500" />
-          </button>
-        </div>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-gray-800 text-gray-300 rounded-2xl w-full max-w-4xl p-8 shadow-xl relative">
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 text-gray-400 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
 
-        <form onSubmit={handleSubmit(onFormSubmit)} className="p-6 space-y-6">
+        <h2 className="text-2xl font-semibold mb-6">Add Task</h2>
+
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid gap-6 grid-cols-1 md:grid-cols-2"
+        >
           {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Task Title *
-            </label>
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Title</label>
             <input
-              type="text"
-              {...register("title", { required: true })}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Enter task title..."
+              {...register("title")}
+              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {errors.title && (
-              <span className="text-red-500 text-sm">Title is required</span>
-            )}
+            <p className="text-red-500 text-sm mt-1">{errors.title?.message}</p>
           </div>
 
           {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Description
-            </label>
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Description</label>
             <textarea
               {...register("description")}
-              rows={3}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              placeholder="Add a description..."
+              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* Assign & Priority */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Assign to
-              </label>
-              <select
-                {...register("assignedUserId")}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* Assigned User */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Assigned User</label>
+            <select
+              {...register("assignedUser")}
+              className="w-full p-3 bg-gray-700 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Select a user</option>
+              {demoUsers.map((user) => (
+                <option key={user.id} value={user.name}>
+                  {user.name}
+                </option>
+              ))}
+            </select>
+            <p className="text-red-500 text-sm mt-1">
+              {errors.assignedUser?.message}
+            </p>
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Priority
-              </label>
-              <select
-                {...register("priority")}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
+          {/* Deadline */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Deadline</label>
+            <input
+              type="date"
+              {...register("deadline")}
+              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <p className="text-red-500 text-sm mt-1">
+              {errors.deadline?.message}
+            </p>
+          </div>
+
+          {/* Priority */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Priority</label>
+            <select
+              {...register("priority")}
+              className="w-full p-3 bg-gray-800 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
           </div>
 
           {/* Status */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Status
-            </label>
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Status</label>
             <select
               {...register("status")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full p-3 bg-gray-800 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="todo">To Do</option>
-              <option value="in-progress">In Progress</option>
+              <option value="progress">In Progress</option>
               <option value="done">Done</option>
             </select>
           </div>
 
-          {/* Deadline */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Deadline
+          {/* Tags */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">
+              Tags (comma separated)
             </label>
             <input
-              type="date"
-              {...register("deadline")}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              {...register("tags")}
+              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
-          {/* Tags */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Tags
-            </label>
-            <div className="flex flex-wrap gap-2 mb-2">
-              {tags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs rounded-full flex items-center space-x-1"
-                >
-                  <span>{tag}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag(tag)}
-                    className="hover:text-red-500"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                placeholder="Add a tag..."
-                className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                onKeyPress={(e) =>
-                  e.key === "Enter" && (e.preventDefault(), handleAddTag())
-                }
-              />
-              <button
-                type="button"
-                onClick={handleAddTag}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-              >
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
+          {/* Task Points */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Task Points</label>
+            <input
+              type="number"
+              {...register("taskPoints")}
+              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
-          {/* Buttons */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
-            >
-              Cancel
-            </button>
+          {/* Attachments */}
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Attachments</label>
+            <input
+              type="file"
+              {...register("attachments")}
+              className="w-full p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Comments */}
+          <div className="flex flex-col md:col-span-2">
+            <label className="text-sm font-medium mb-1">
+              Comments (optional)
+            </label>
+            <textarea
+              {...register("comments")}
+              className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Submit */}
+          <div className="col-span-2 flex justify-end mt-4">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
             >
-              Create Task
+              Add Task
             </button>
           </div>
         </form>
@@ -220,4 +172,4 @@ const AddTaskDialog = ({ isOpen, onClose, onSubmit }) => {
   );
 };
 
-export default AddTaskDialog;
+export default TaskForm;
