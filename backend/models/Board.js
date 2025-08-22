@@ -8,6 +8,7 @@ const boardSchema = new mongoose.Schema(
       required: true,
     },
     title: { type: String, required: true },
+    color: { type: String, default: "#6B7280" },
     order: { type: Number, default: 0 },
   },
   { timestamps: true }

@@ -1,4 +1,5 @@
 import express from "express";
+
 import { protect } from "../middlewares/authMiddleware.js";
 import {
   createTask,
@@ -15,7 +16,7 @@ router.get("/:boardId", protect, getTasks);
 router.put("/:id", protect, updateTask);
 router.delete("/:id", protect, deleteTask);
 
-// Drag-and-drop move
+//Drag and drop
 router.put("/move/:taskId", protect, moveTask);
 
 export default router;

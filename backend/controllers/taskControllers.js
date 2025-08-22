@@ -2,30 +2,11 @@ import Task from "../models/Task.js";
 import { moveTaskService } from "../services/taskServices.js";
 
 /**
- * @desc Create Task
+ * @desc Create task
  */
 export const createTask = async (req, res) => {
   try {
-    const {
-      projectId,
-      boardId,
-      title,
-      description,
-      assignedTo,
-      deadline,
-      order,
-    } = req.body;
-
-    const task = await Task.create({
-      projectId,
-      boardId,
-      title,
-      description,
-      assignedTo,
-      deadline,
-      order,
-    });
-
+    const task = await Task.create(req.body);
     res.status(201).json(task);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -40,7 +21,7 @@ export const getTasks = async (req, res) => {
     const { boardId } = req.params;
     const tasks = await Task.find({ boardId })
       .populate("assignedTo", "name email")
-      .sort({ order: 1 }); // ensures drag order
+      .sort({ order: 1 });
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -48,7 +29,7 @@ export const getTasks = async (req, res) => {
 };
 
 /**
- * @desc Update task (general edit)
+ * @desc Update task
  */
 export const updateTask = async (req, res) => {
   try {

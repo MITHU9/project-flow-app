@@ -2,35 +2,28 @@ import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema(
   {
-    projectId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Project",
-      required: true,
-    },
     boardId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Board",
       required: true,
     },
+    projectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Project",
+      required: true,
+    },
     title: { type: String, required: true },
     description: String,
-    assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    assignedUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     deadline: Date,
-    status: {
+    priority: {
       type: String,
-      enum: ["todo", "in-progress", "done"],
-      default: "todo",
+      enum: ["low", "medium", "high"],
+      default: "medium",
     },
-
+    tags: [{ type: String }],
     order: { type: Number, default: 0 },
-
-    comments: [
-      {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        text: String,
-        createdAt: { type: Date, default: Date.now },
-      },
-    ],
+    attachments: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
