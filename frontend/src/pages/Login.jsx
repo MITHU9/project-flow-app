@@ -22,7 +22,7 @@ const Login = () => {
     try {
       await loginMutation.mutateAsync(data);
       toast.success("Logged in successfully!");
-      navigate("/board");
+      navigate("/project");
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed");
     }

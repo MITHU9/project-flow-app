@@ -22,7 +22,7 @@ const Register = () => {
     try {
       await registerMutation.mutateAsync(data);
       toast.success("Registered successfully!");
-      navigate("/board");
+      navigate("/project");
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed");
     }

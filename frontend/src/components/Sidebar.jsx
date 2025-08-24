@@ -10,9 +10,62 @@ import {
   Bell,
   Archive,
 } from "lucide-react";
-import { projects } from "../data/dummyData";
+import { useState } from "react";
+import CreateProjectModal from "./CreateProjectModal";
+import { useCreateProject } from "../hooks/useCreateProject";
+import toast from "react-hot-toast";
+import { useProjects } from "../hooks/useProjects";
 
 const Sidebar = ({ isCollapsed, onToggle }) => {
+  const [open, setOpen] = useState(false);
+  const createProject = useCreateProject();
+  const { data: projects = [], isLoading, isError } = useProjects();
+
+  const handleCreateProject = (projectData) => {
+    createProject.mutate(projectData, {
+      onSuccess: () => {
+        setOpen(false);
+        toast.success("Project created successfully!");
+      },
+      onError: (err) => {
+        console.error(
+          "Error creating project:",
+          err.response?.data || err.message
+        );
+      },
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div
+        className={`${
+          isCollapsed ? "w-16" : "w-64"
+        } h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col fixed left-0 top-0 z-40 lg:relative lg:z-auto`}
+      >
+        <div className="h-16 flex items-center justify-center px-4 border-b border-gray-200 dark:border-gray-700">
+          <span className="text-gray-500">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div
+        className={`${
+          isCollapsed ? "w-16" : "w-64"
+        } h-screen bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 transition-all duration-300 flex flex-col fixed left-0 top-0 z-40 lg:relative lg:z-auto`}
+      >
+        <div className="h-16 flex items-center justify-center px-4 border-b border-gray-200 dark:border-gray-700">
+          <span className="text-red-500">Error loading projects</span>
+        </div>
+      </div>
+    );
+  }
+
+  console.log(projects);
+
   return (
     <div
       className={`${
@@ -42,7 +95,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
       <nav className="flex-1 p-4">
         <div className="space-y-2">
           <NavLink
-            to="/board"
+            to="/project"
             className={({ isActive }) =>
               `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                 isActive
@@ -134,11 +187,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
                 Projects
               </h3>
               <button
-                onClick={() =>
-                  alert(
-                    "Create new project functionality would open project creation modal"
-                  )
-                }
+                onClick={() => setOpen(true)}
                 className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <Plus className="h-4 w-4 text-gray-400" />
@@ -147,8 +196,8 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
             <div className="space-y-1">
               {projects.map((project) => (
                 <NavLink
-                  to={`/project/${project.id}`}
-                  key={project.id}
+                  to={`/project/${project._id}`}
+                  key={project._id}
                   className={({ isActive }) =>
                     `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
                       isActive
@@ -170,6 +219,12 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
           </div>
         )}
       </nav>
+      {/* Modal */}
+      <CreateProjectModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onCreate={handleCreateProject}
+      />
     </div>
   );
 };

@@ -2,35 +2,39 @@ import { Filter, Plus, Search, Users } from "lucide-react";
 import KanbanBoard from "../components/KanbanBoard";
 import { useState } from "react";
 import TaskForm from "../components/AddTaskDialog";
+import { useProject } from "../hooks/useProjectById";
+import { useParams } from "react-router-dom";
 
 const KanbanPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { id } = useParams();
+  const { data: project, isLoading, isError } = useProject(id);
 
-  const boards = [
-    {
-      _id: "board1",
-      title: "To Do",
-      tasks: [
-        { _id: "task1", title: "Task 1", description: "Description 1" },
-        { _id: "task2", title: "Task 2", description: "Description 2" },
-      ],
-    },
-    {
-      _id: "board2",
-      title: "In Progress",
-      tasks: [{ _id: "task3", title: "Task 3", description: "Description 3" }],
-    },
-    {
-      _id: "board3",
-      title: "Done",
-      tasks: [{ _id: "task4", title: "Task 4", description: "Description 4" }],
-    },
-  ];
+  if (!id) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-400 text-xl">
+        Please select a project
+      </div>
+    );
+  }
 
-  const handleAddTask = (data) => {
-    console.log("New Task Data:", data);
-    setIsModalOpen(false);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-400 text-xl">
+        Loading project...
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center h-full text-gray-400 text-xl">
+        Error loading project.
+      </div>
+    );
+  }
+
+  //console.log(project);
 
   return (
     <div className="bg-gray-900 min-h-screen text-gray-200">
@@ -39,9 +43,11 @@ const KanbanPage = () => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-200">
-              New Project Name
+              {project?.name || "Project Name"}
             </h1>
-            <p className="text-gray-400 mt-1">new project description</p>
+            <p className="text-gray-400 mt-1">
+              {project?.description || "Project Description"}
+            </p>
           </div>
 
           <div className="flex items-center space-x-3">
@@ -83,11 +89,11 @@ const KanbanPage = () => {
       <TaskForm
         isModalOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSubmit={handleAddTask}
+        projectId={id}
       />
 
       {/* Kanban Board */}
-      <KanbanBoard boards={boards} />
+      <KanbanBoard boards={project?.boards || []} id={id} />
     </div>
   );
 };

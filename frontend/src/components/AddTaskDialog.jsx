@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { X } from "lucide-react";
 import { taskSchema } from "../validation/taskSchema";
+import { useCreateTask } from "../hooks/useCreateTask";
 
 const demoUsers = [
   { id: 1, name: "Alice Johnson" },
@@ -10,7 +11,7 @@ const demoUsers = [
   { id: 4, name: "Diana Prince" },
 ];
 
-const TaskForm = ({ isModalOpen, onClose, onSubmit }) => {
+const TaskForm = ({ isModalOpen, onClose, projectId }) => {
   const {
     register,
     handleSubmit,
@@ -18,6 +19,21 @@ const TaskForm = ({ isModalOpen, onClose, onSubmit }) => {
   } = useForm({
     resolver: yupResolver(taskSchema),
   });
+
+  const { mutateAsync: createTaskMutation } = useCreateTask();
+
+  const onSubmit = async (data) => {
+    try {
+      await createTaskMutation({
+        ...data,
+        boardId,
+        projectId,
+      });
+      onClose();
+    } catch (err) {
+      console.error("Failed to create task", err);
+    }
+  };
 
   if (!isModalOpen) return null;
 

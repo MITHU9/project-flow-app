@@ -24,14 +24,22 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route
-              path="/"
               element={
                 <ProtectedRoute>
                   <Layout />
                 </ProtectedRoute>
               }
             >
-              <Route path="/board" element={<KanbanPage />} />
+              {/* Optional project route */}
+              <Route path="project/:id" element={<KanbanPage />} />
+              <Route
+                path="project"
+                element={
+                  <div className="flex items-center justify-center h-full text-gray-400 text-xl">
+                    Please select a project
+                  </div>
+                }
+              />
             </Route>
           </Routes>
         </main>

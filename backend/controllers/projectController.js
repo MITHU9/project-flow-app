@@ -5,19 +5,20 @@ import Task from "../models/Task.js";
 // Create new project
 export const createProject = async (req, res) => {
   try {
-    const { name, description, color } = req.body;
+    const { name, description, color, createdBy } = req.body;
 
     // Create default boards
     const boards = await Board.insertMany([
-      { title: "To Do", tasks: [] },
-      { title: "In Progress", tasks: [] },
-      { title: "Done", tasks: [] },
+      { title: "To Do", tasks: [], color: "#6B7280" },
+      { title: "In Progress", tasks: [], color: "#FBBF24" },
+      { title: "Done", tasks: [], color: "#34D399" },
     ]);
 
     const project = new Project({
       name,
       description,
       color,
+      createdBy,
       boards: boards.map((b) => b._id),
     });
 
