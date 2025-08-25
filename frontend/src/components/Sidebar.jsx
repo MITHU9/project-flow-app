@@ -15,11 +15,13 @@ import CreateProjectModal from "./CreateProjectModal";
 import { useCreateProject } from "../hooks/useCreateProject";
 import toast from "react-hot-toast";
 import { useProjects } from "../hooks/useProjects";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 const Sidebar = ({ isCollapsed, onToggle }) => {
   const [open, setOpen] = useState(false);
   const createProject = useCreateProject();
-  const { data: projects = [], isLoading, isError } = useProjects();
+  const { user } = useAuthContext();
+  const { data: projects = [], isLoading, isError } = useProjects(user._id);
 
   const handleCreateProject = (projectData) => {
     createProject.mutate(projectData, {
@@ -64,7 +66,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
     );
   }
 
-  //console.log(projects);
+  console.log(projects);
 
   return (
     <div

@@ -1,7 +1,7 @@
 import { API } from "./authApi";
 
-export const getProjects = async () => {
-  const res = await API.get("/projects");
+export const getProjects = async (id) => {
+  const res = await API.get(`/projects?userId=${id}`);
   return res.data;
 };
 

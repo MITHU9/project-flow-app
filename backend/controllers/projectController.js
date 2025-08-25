@@ -19,6 +19,7 @@ export const createProject = async (req, res) => {
       description,
       color,
       createdBy,
+      members: [createdBy],
       boards: boards.map((b) => b._id),
     });
 
@@ -33,8 +34,15 @@ export const createProject = async (req, res) => {
 
 // Get all projects
 export const getProjects = async (req, res) => {
+  const { userId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is required" });
+  }
+
+  // Fetch user projects from members array include userId
   try {
-    const projects = await Project.find().populate({
+    const projects = await Project.find({ members: userId }).populate({
       path: "boards",
       populate: {
         path: "tasks",
@@ -56,7 +64,11 @@ export const getProjectById = async (req, res) => {
       path: "boards",
       populate: {
         path: "tasks",
-        populate: ["assignedUser", { path: "comments", populate: "author" }],
+        populate: [
+          "assignedUser",
+          { path: "comments", populate: "author" },
+          { path: "subTasks" },
+        ],
       },
     });
 

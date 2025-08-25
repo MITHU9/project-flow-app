@@ -7,6 +7,7 @@ const upload = multer({
     cloudinary: cloudinary,
     params: {
       folder: "project-flow",
+      type: "upload",
       allowed_formats: ["jpg", "png", "jpeg", "webp", "pdf"],
     },
   }),

@@ -1,10 +1,10 @@
 import { getProjects } from "../api/projectApi";
 import { useQuery } from "@tanstack/react-query";
 
-export const useProjects = () => {
+export const useProjects = (id) => {
   return useQuery({
-    queryKey: ["projects"],
-    queryFn: getProjects,
+    queryKey: ["projects", id],
+    queryFn: () => getProjects(id),
     staleTime: 1000 * 60,
   });
 };

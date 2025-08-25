@@ -25,6 +25,9 @@ export const createTask = async (req, res) => {
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: "Project not found" });
 
+    project.members.addToSet(assignedUser);
+    await project.save();
+
     const board = await Board.findById(boardId);
     if (!board) return res.status(404).json({ message: "Board not found" });
 
@@ -214,6 +217,25 @@ export const updateTask = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to update task" });
+  }
+};
+
+// Toggle subtask completed status
+export const toggleSubTask = async (req, res) => {
+  try {
+    const { subTaskId } = req.params;
+
+    const subTask = await Subtask.findById(subTaskId);
+    if (!subTask) return res.status(404).json({ message: "Subtask not found" });
+
+    subTask.completed = !subTask.completed;
+    subTask.completedAt = subTask.completed ? new Date() : null;
+    await subTask.save();
+
+    res.json(subTask);
+  } catch (err) {
+    console.error("Toggle subtask error:", err);
+    res.status(500).json({ message: "Failed to update subtask" });
   }
 };
 

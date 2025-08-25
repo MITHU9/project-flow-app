@@ -22,3 +22,13 @@ export const createTask = async (taskData) => {
 
   return res.data;
 };
+
+export const getTaskById = async (taskId) => {
+  const res = await API.get(`/tasks/${taskId}`);
+  return res.data;
+};
+
+export const toggleSubTask = async (subTaskId) => {
+  const { data } = await API.patch(`/tasks/subtask/${subTaskId}/toggle`);
+  return data;
+};

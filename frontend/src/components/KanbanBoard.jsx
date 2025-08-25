@@ -6,16 +6,22 @@ import { useCreateTask } from "../hooks/useCreateTask";
 import toast from "react-hot-toast";
 import { queryClient } from "../utils/queryClient";
 import TaskCard from "./TaskCard";
+import TaskDetailsModal from "./TaskDetailsModal";
 
 const KanbanBoard = ({ boards, id }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [currentBoardId, setCurrentBoardId] = useState(null);
+  const [selectedTaskId, setSelectedTaskId] = useState(null);
   const createTaskMutation = useCreateTask(id);
 
   const handleAddTask = (boardId) => {
     setCurrentBoardId(boardId);
     setOpenDialog(true);
     console.log("Open task dialog for board:", boardId);
+  };
+
+  const handleSingleTaskClick = (taskId) => {
+    setSelectedTaskId(taskId);
   };
 
   const handleTaskAdd = (task) => {
@@ -40,14 +46,14 @@ const KanbanBoard = ({ boards, id }) => {
     );
   };
 
-  console.log(boards?.map((b) => b.tasks));
+  //console.log(boards?.map((b) => b.tasks));
 
   return (
-    <div className="flex flex-col lg:flex-row space-x-6 overflow-x-auto py-4 px-6 md:justify-center md:items-center gap-2">
+    <div className="flex flex-col lg:flex-row space-x-6 overflow-x-auto py-4 px-6 justify-center items-center lg:items-start gap-2 ">
       {boards.map((board) => (
         <div
           key={board._id}
-          className="rounded-lg md:min-w-1/2 lg:w-1/4 flex-shrink-0 p-4"
+          className="rounded-lg md:w-3/5 lg:w-1/4 flex-shrink-0 p-4"
           style={{
             backgroundColor: `${board.color}10`,
             border: `2px dashed ${board.color}80`,
@@ -66,7 +72,14 @@ const KanbanBoard = ({ boards, id }) => {
           </div>
           <div className="space-y-3">
             {board.tasks.length > 0 ? (
-              board.tasks.map((task) => <TaskCard key={task._id} task={task} />)
+              board.tasks.map((task) => (
+                <div
+                  key={task._id}
+                  onClick={() => handleSingleTaskClick(task._id)}
+                >
+                  <TaskCard task={task} />
+                </div>
+              ))
             ) : (
               <p className="text-gray-300 italic">No tasks yet</p>
             )}
@@ -79,6 +92,12 @@ const KanbanBoard = ({ boards, id }) => {
         onClose={() => setOpenDialog(false)}
         onTaskAdd={handleTaskAdd}
         isLoading={createTaskMutation.isPending}
+      />
+
+      <TaskDetailsModal
+        isOpen={!!selectedTaskId}
+        onClose={() => setSelectedTaskId(null)}
+        taskId={selectedTaskId}
       />
     </div>
   );

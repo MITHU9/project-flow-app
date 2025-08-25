@@ -85,7 +85,7 @@ const TaskForm = ({ isModalOpen, onClose, onTaskAdd, isLoading }) => {
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-gray-400 hover:text-gray-200"
+          className="absolute top-6 right-6 text-gray-400 hover:text-gray-200 cursor-pointer"
         >
           <X size={24} />
         </button>
@@ -302,7 +302,7 @@ const TaskForm = ({ isModalOpen, onClose, onTaskAdd, isLoading }) => {
           <div className="col-span-2 flex justify-end mt-4">
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
             >
               {isLoading ? "Creating..." : "Add Task"}
             </button>
