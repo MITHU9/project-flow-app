@@ -1,12 +1,9 @@
 import { Filter, Plus, Search, Users } from "lucide-react";
 import KanbanBoard from "../components/KanbanBoard";
-import { useState } from "react";
-import TaskForm from "../components/AddTaskDialog";
 import { useProject } from "../hooks/useProjectById";
 import { useParams } from "react-router-dom";
 
 const KanbanPage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const { id } = useParams();
   const { data: project, isLoading, isError } = useProject(id);
 
@@ -51,10 +48,7 @@ const KanbanPage = () => {
           </div>
 
           <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
+            <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
               <Plus className="w-4 h-4 mr-2" />
               Add Task
             </button>
@@ -84,13 +78,6 @@ const KanbanPage = () => {
           </button>
         </div>
       </div>
-
-      {/* Task Modal */}
-      <TaskForm
-        isModalOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        projectId={id}
-      />
 
       {/* Kanban Board */}
       <KanbanBoard boards={project?.boards || []} id={id} />

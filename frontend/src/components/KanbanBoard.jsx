@@ -1,20 +1,42 @@
 import { useState } from "react";
-import AddTaskDialog from "./AddTaskDialog";
 import { Plus } from "lucide-react";
 import { Button } from "../components/ui/button";
+import TaskForm from "./AddTaskDialog";
+import { useCreateTask } from "../hooks/useCreateTask";
+import toast from "react-hot-toast";
+import { queryClient } from "../utils/queryClient";
 
 const KanbanBoard = ({ boards, id }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [currentBoardId, setCurrentBoardId] = useState(null);
+  const createTaskMutation = useCreateTask(id);
 
   const handleAddTask = (boardId) => {
     setCurrentBoardId(boardId);
     setOpenDialog(true);
+    console.log("Open task dialog for board:", boardId);
   };
 
-  const onSubmitTask = (data) => {
-    console.log("Add task to board:", currentBoardId, data);
-    // integrate with API or socket.io later
+  const handleTaskAdd = (task) => {
+    createTaskMutation.mutateAsync(
+      {
+        ...task,
+        boardId: currentBoardId,
+        projectId: id,
+      },
+      {
+        onSuccess: () => {
+          setOpenDialog(false);
+          toast.success("Task created successfully!");
+          queryClient.invalidateQueries({
+            queryKey: ["project", id],
+          });
+        },
+        onError: (error) => {
+          console.error("Error creating task:", error);
+        },
+      }
+    );
   };
 
   return (
@@ -56,11 +78,12 @@ const KanbanBoard = ({ boards, id }) => {
           </div>
         </div>
       ))}
-      <AddTaskDialog
-        isOpen={openDialog}
-        onOpenChange={setOpenDialog}
-        onSubmitTask={onSubmitTask}
-        projectId={id}
+      {/* Task Modal */}
+      <TaskForm
+        isModalOpen={openDialog}
+        onClose={() => setOpenDialog(false)}
+        onTaskAdd={handleTaskAdd}
+        isLoading={createTaskMutation.isPending}
       />
     </div>
   );

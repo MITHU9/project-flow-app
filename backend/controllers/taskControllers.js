@@ -16,7 +16,6 @@ export const createTask = async (req, res) => {
       tags,
       status,
       taskPoints,
-      attachments,
       comments,
       projectId,
       boardId,
@@ -29,23 +28,37 @@ export const createTask = async (req, res) => {
     const board = await Board.findById(boardId);
     if (!board) return res.status(404).json({ message: "Board not found" });
 
+    // ✅ Convert tags to array (if string, split by comma)
+    const formattedTags = Array.isArray(tags)
+      ? tags
+      : tags
+          ?.split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+
     // 1️⃣ Create taskPoints
-    const points = await Subtask.insertMany(
-      (taskPoints || []).map((p) => ({
-        text: p.text,
-        completed: p.completed || false,
-        completedAt: p.completedAt || null,
-      }))
-    );
+    const points = taskPoints
+      ? await Subtask.insertMany(
+          JSON.parse(taskPoints).map((p) => ({
+            text: p.text,
+            completed: p.completed || false,
+            completedAt: p.completedAt || null,
+          }))
+        )
+      : [];
 
     // 2️⃣ Create comments
-    const commentDocs = await Comment.insertMany(
-      (comments || []).map((c) => ({
-        text: c.text,
-        author: c.author,
-        createdAt: c.createdAt || new Date(),
-      }))
-    );
+    const commentDocs = comments
+      ? await Comment.insertMany(
+          JSON.parse(comments).map((c) => ({
+            text: c.text,
+            author: c.author,
+            createdAt: c.createdAt || new Date(),
+          }))
+        )
+      : [];
+
+    const imageUrl = req.file ? req.file.path : null;
 
     // 3️⃣ Create task
     const task = new Task({
@@ -55,8 +68,8 @@ export const createTask = async (req, res) => {
       deadline,
       priority,
       status,
-      tags,
-      attachments,
+      tags: formattedTags, // ✅ store as array
+      attachment: imageUrl,
       projectId,
       boardId,
       subTasks: points.map((p) => p._id),

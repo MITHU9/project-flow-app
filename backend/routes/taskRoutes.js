@@ -7,10 +7,11 @@ import {
   getTasks,
   updateTask,
 } from "../controllers/taskControllers.js";
+import { upload } from "../middlewares/multer.js";
 
 const router = express.Router();
 
-router.post("/", protect, createTask);
+router.post("/", protect, upload, createTask);
 router.get("/:boardId", protect, getTasks);
 router.put("/:id", protect, updateTask);
 router.delete("/:id", protect, deleteTask);

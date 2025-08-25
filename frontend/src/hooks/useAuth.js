@@ -1,5 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { loginUser, registerUser, getMe, logoutUser } from "../api/authApi";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  loginUser,
+  registerUser,
+  getMe,
+  logoutUser,
+  getAllUsers,
+} from "../api/authApi";
 import { queryClient } from "../utils/queryClient";
 
 export const useLogin = () => {
@@ -36,5 +42,13 @@ export const useLogout = () => {
     onSuccess: () => {
       queryClient.removeQueries(["me"]);
     },
+  });
+};
+
+export const useGetAllUsers = () => {
+  return useQuery({
+    queryKey: ["allUsers"],
+    queryFn: getAllUsers,
+    retry: false,
   });
 };

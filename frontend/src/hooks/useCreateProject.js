@@ -7,7 +7,7 @@ export const useCreateProject = () => {
   return useMutation({
     mutationFn: createProject,
     onSuccess: (newProject) => {
-      queryClient.invalidateQueries(["projects"]);
+      queryClient.invalidateQueries(["projects", "project"]);
       // Optimistically update the new project in the cache
       queryClient.setQueryData(["project", newProject._id], newProject);
     },

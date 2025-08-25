@@ -29,7 +29,7 @@ const taskSchema = new mongoose.Schema(
       default: "todo",
     },
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
-    attachments: [String],
+    attachment: String,
     subTasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Subtask" }],
   },
   { timestamps: true }

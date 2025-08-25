@@ -64,7 +64,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
     );
   }
 
-  console.log(projects);
+  //console.log(projects);
 
   return (
     <div

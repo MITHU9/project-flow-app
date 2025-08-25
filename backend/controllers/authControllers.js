@@ -40,3 +40,8 @@ export const getProfile = async (req, res) => {
   const user = await User.findById(req.user.id).select("-passwordHash");
   res.json(user);
 };
+
+export const getAllUsers = async (req, res) => {
+  const users = await User.find().select("-passwordHash");
+  res.json(users);
+};
