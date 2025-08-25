@@ -5,6 +5,7 @@ import TaskForm from "./AddTaskDialog";
 import { useCreateTask } from "../hooks/useCreateTask";
 import toast from "react-hot-toast";
 import { queryClient } from "../utils/queryClient";
+import TaskCard from "./TaskCard";
 
 const KanbanBoard = ({ boards, id }) => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -39,15 +40,17 @@ const KanbanBoard = ({ boards, id }) => {
     );
   };
 
+  console.log(boards?.map((b) => b.tasks));
+
   return (
-    <div className="flex space-x-6 overflow-x-auto py-4 px-6">
+    <div className="flex flex-col lg:flex-row space-x-6 overflow-x-auto py-4 px-6 md:justify-center md:items-center gap-2">
       {boards.map((board) => (
         <div
           key={board._id}
-          className="rounded-lg w-64 flex-shrink-0 p-4"
+          className="rounded-lg md:min-w-1/2 lg:w-1/4 flex-shrink-0 p-4"
           style={{
-            backgroundColor: `${board.color}33`,
-            border: `2px dashed ${board.color}`,
+            backgroundColor: `${board.color}10`,
+            border: `2px dashed ${board.color}80`,
           }}
         >
           <div className="flex justify-between items-center mb-4">
@@ -63,15 +66,7 @@ const KanbanBoard = ({ boards, id }) => {
           </div>
           <div className="space-y-3">
             {board.tasks.length > 0 ? (
-              board.tasks.map((task) => (
-                <div
-                  key={task._id}
-                  className="bg-gray-700 p-3 rounded-lg shadow hover:bg-gray-600 cursor-pointer"
-                >
-                  <h3 className="font-medium text-white">{task.title}</h3>
-                  <p className="text-sm text-gray-300">{task.description}</p>
-                </div>
-              ))
+              board.tasks.map((task) => <TaskCard key={task._id} task={task} />)
             ) : (
               <p className="text-gray-300 italic">No tasks yet</p>
             )}
