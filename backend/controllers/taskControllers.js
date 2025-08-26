@@ -3,6 +3,7 @@ import Subtask from "../models/Subtask.js";
 import Task from "../models/Task.js";
 import Board from "../models/Board.js";
 import Project from "../models/Project.js";
+import { io } from "../index.js";
 
 // ---------------- Create Task ----------------
 export const createTask = async (req, res) => {
@@ -90,6 +91,17 @@ export const createTask = async (req, res) => {
       .populate("assignedUser")
       .populate({ path: "comments", populate: { path: "author" } })
       .populate("subTasks");
+
+    // 🔥 Emit socket event to all clients in this project/board
+    io.emit("task:created", populatedTask);
+
+    // 🔔 If assignedUser exists, send a private notification
+    if (assignedUser) {
+      io.to(assignedUser.toString()).emit("task:assigned", {
+        message: "You have been assigned a new task",
+        task: populatedTask,
+      });
+    }
 
     res.status(201).json(populatedTask);
   } catch (err) {

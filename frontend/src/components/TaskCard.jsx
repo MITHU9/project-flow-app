@@ -26,7 +26,7 @@ const TaskCard = ({ task }) => {
   const completedPoints = task.subTasks.filter((t) => t.completed).length;
   const totalPoints = task.subTasks.length;
 
-  console.log(totalPoints, completedPoints, task);
+  //console.log(totalPoints, completedPoints, task);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200 cursor-pointer">

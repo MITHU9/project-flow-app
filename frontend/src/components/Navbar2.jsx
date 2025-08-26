@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Moon, Sun, Search, Bell, Settings } from "lucide-react";
-import { useAuthContext } from "../hooks/useAuthContext";
 import { useLogout } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+import { useAuthContext } from "../hooks/useAuthContext";
+import { useTaskSocket } from "../hooks/useTaskSocket";
 
 const Navbar2 = () => {
   const { isDark, toggleTheme, user } = useAuthContext();
@@ -12,39 +12,22 @@ const Navbar2 = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const logout = useLogout();
-
   const navigate = useNavigate();
 
-  const notifications = [
-    {
-      id: 1,
-      title: "Task assigned",
-      message: "You have been assigned to a new task",
-      time: "5m ago",
-      unread: true,
-    },
-    {
-      id: 2,
-      title: "Deadline approaching",
-      message: "Task due in 2 hours",
-      time: "1h ago",
-      unread: true,
-    },
-    {
-      id: 3,
-      title: "Comment added",
-      message: "New comment on your task",
-      time: "2h ago",
-      unread: false,
-    },
-  ];
+  // Load notifications from localStorage initially
+  const storedNotifications =
+    JSON.parse(localStorage.getItem("notifications")) || [];
+  const [notifications, setNotifications] = useState(storedNotifications);
+  const [unreadCount, setUnreadCount] = useState(
+    storedNotifications.filter((n) => !n.read).length
+  );
 
-  const unreadCount = notifications.filter((n) => n.unread).length;
+  // Setup socket to listen for assigned tasks
+  useTaskSocket(user?._id, setNotifications, setUnreadCount);
 
   const handleLogout = () => {
     logout.mutate(null, {
       onSuccess: () => {
-        toast.success("Logged out!");
         localStorage.removeItem("token");
         navigate("/login");
       },
@@ -58,10 +41,31 @@ const Navbar2 = () => {
     }
   };
 
-  //console.log(user);
+  // Update localStorage whenever notifications change
+  useEffect(() => {
+    localStorage.setItem("notifications", JSON.stringify(notifications));
+  }, [notifications]);
+
+  const handleBellClick = () => {
+    setIsNotificationOpen(!isNotificationOpen);
+
+    // Mark all as read when bell is opened
+    const updatedNotifications = notifications.map((n) => ({
+      ...n,
+      read: true,
+    }));
+    setNotifications(updatedNotifications);
+    setUnreadCount(0);
+    localStorage.setItem("notifications", JSON.stringify(updatedNotifications));
+  };
+
+  // console.log("Notifications:", notifications, setNotifications);
+  // console.log("Unread Count:", unreadCount);
+  // console.log("User:", user);
 
   return (
     <nav className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 flex items-center justify-between">
+      {/* Left: Search */}
       <div className="flex items-center space-x-4">
         <form onSubmit={handleSearch} className="relative">
           <Search className="h-5 w-5 text-gray-300 absolute left-3 top-1/2 transform -translate-y-1/2" />
@@ -75,7 +79,9 @@ const Navbar2 = () => {
         </form>
       </div>
 
-      <div className="flex items-center space-x-4">
+      {/* Right: Icons */}
+      <div className="flex items-center space-x-4 relative">
+        {/* Theme toggle */}
         <button
           onClick={toggleTheme}
           className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -88,22 +94,56 @@ const Navbar2 = () => {
           )}
         </button>
 
-        <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative">
-          <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-              {unreadCount}
-            </span>
-          )}
-        </button>
+        {/* Notifications */}
+        <div className="relative">
+          <button
+            onClick={handleBellClick}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative"
+          >
+            <Bell className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
+          </button>
 
+          {isNotificationOpen && (
+            <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10">
+              {notifications.length === 0 && (
+                <p className="p-4 text-gray-500 dark:text-gray-300 text-sm">
+                  No notifications
+                </p>
+              )}
+              {notifications.map((n, index) => (
+                <div
+                  key={index}
+                  className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                >
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {n.message}
+                  </p>
+                  <p className="text-gray-500 dark:text-gray-300 text-sm">
+                    Task: {n.task.title}
+                  </p>
+                  <p className="text-gray-400 dark:text-gray-400 text-xs">
+                    {new Date(n.task.deadline).toLocaleString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Settings */}
         <button
-          onClick={() => (window.location.href = "/settings")}
+          onClick={() => navigate("/settings")}
           className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         >
           <Settings className="h-5 w-5 text-gray-600 dark:text-gray-400" />
         </button>
 
+        {/* Profile */}
         <div className="relative">
           <button
             onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -124,23 +164,21 @@ const Navbar2 = () => {
               </div>
               <div className="py-1">
                 <button
-                  onClick={() =>
-                    alert("View Profile functionality would show user profile")
-                  }
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-700"
+                  onClick={() => alert("View Profile")}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   View Profile
                 </button>
                 <button
-                  onClick={() => (window.location.href = "/settings")}
-                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-700"
+                  onClick={() => navigate("/settings")}
+                  className="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   Account Settings
                 </button>
                 <hr className="my-1 border-gray-200 dark:border-gray-700" />
                 <button
                   onClick={handleLogout}
-                  className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 cursor-pointer dark:hover:bg-gray-700"
+                  className="w-full px-4 py-2 text-left text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   Sign Out
                 </button>

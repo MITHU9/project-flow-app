@@ -2,10 +2,12 @@ import { Filter, Plus, Search, Users } from "lucide-react";
 import KanbanBoard from "../components/KanbanBoard";
 import { useProject } from "../hooks/useProjectById";
 import { useParams } from "react-router-dom";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 const KanbanPage = () => {
   const { id } = useParams();
   const { data: project, isLoading, isError } = useProject(id);
+  const { user } = useAuthContext();
 
   if (!id) {
     return (
@@ -31,7 +33,7 @@ const KanbanPage = () => {
     );
   }
 
-  //console.log(project);
+  //console.log(user);
 
   return (
     <div className="bg-gray-900 min-h-screen text-gray-200">
@@ -80,7 +82,11 @@ const KanbanPage = () => {
       </div>
 
       {/* Kanban Board */}
-      <KanbanBoard boards={project?.boards || []} id={id} />
+      <KanbanBoard
+        boards={project?.boards || []}
+        id={id}
+        currentUserId={user?._id}
+      />
     </div>
   );
 };

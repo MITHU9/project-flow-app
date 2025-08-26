@@ -43,8 +43,9 @@ connectMongo();
 connectSQL();
 
 // Socket.IO setup
+export let io;
 const server = createServer(app);
-const io = new Server(server, {
+io = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] },
 });
 
@@ -52,9 +53,15 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("🔌 User connected:", socket.id);
 
+  // Join a personal room
+  socket.on("joinRoom", (userId) => {
+    socket.join(userId);
+    console.log(`User ${userId} joined their personal room`);
+  });
+
   // Listen for drag-and-drop events
   socket.on("task:move", async (data) => {
-    await moveTaskSocket(io, data); // pass io to broadcast
+    await moveTaskSocket(io, data);
   });
 
   socket.on("disconnect", () => {

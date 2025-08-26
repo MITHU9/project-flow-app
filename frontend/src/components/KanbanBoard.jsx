@@ -7,12 +7,16 @@ import toast from "react-hot-toast";
 import { queryClient } from "../utils/queryClient";
 import TaskCard from "./TaskCard";
 import TaskDetailsModal from "./TaskDetailsModal";
+import { useTaskSocket } from "../hooks/useTaskSocket";
 
-const KanbanBoard = ({ boards, id }) => {
+const KanbanBoard = ({ boards, id, currentUserId }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [currentBoardId, setCurrentBoardId] = useState(null);
   const [selectedTaskId, setSelectedTaskId] = useState(null);
   const createTaskMutation = useCreateTask(id);
+
+  // Socket hook
+  useTaskSocket(currentUserId);
 
   const handleAddTask = (boardId) => {
     setCurrentBoardId(boardId);

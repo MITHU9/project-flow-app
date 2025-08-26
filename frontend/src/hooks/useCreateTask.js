@@ -9,6 +9,7 @@ export const useCreateTask = (projectId) => {
       queryClient.invalidateQueries({
         queryKey: ["tasks", "project", projectId],
       });
+      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
     },
     onError: (error) => {
       console.error("Error creating task:", error);
