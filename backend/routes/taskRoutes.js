@@ -14,9 +14,9 @@ import { upload } from "../middlewares/multer.js";
 const router = express.Router();
 
 router.post("/", protect, upload, createTask);
-
-router.get("/:id", protect, getTaskById);
 router.patch("/subtask/:subTaskId/toggle", protect, toggleSubTask);
+router.get("/:id", protect, getTaskById);
+
 router.get("/:boardId", protect, getTasks);
 router.put("/:id", protect, updateTask);
 router.delete("/:id", protect, deleteTask);

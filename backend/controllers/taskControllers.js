@@ -233,21 +233,34 @@ export const updateTask = async (req, res) => {
 };
 
 // Toggle subtask completed status
-export const toggleSubTask = async (req, res) => {
+export const toggleSubTask = async (req, res, next) => {
   try {
     const { subTaskId } = req.params;
 
+    // Find the subtask by ID
     const subTask = await Subtask.findById(subTaskId);
-    if (!subTask) return res.status(404).json({ message: "Subtask not found" });
+    if (!subTask) {
+      return res.status(404).json({ message: "Subtask not found" });
+    }
 
+    // Toggle completion
     subTask.completed = !subTask.completed;
     subTask.completedAt = subTask.completed ? new Date() : null;
     await subTask.save();
 
+    // Find the parent task containing this subtask
+    const task = await Task.findOne({ subTasks: subTaskId });
+    if (!task) {
+      return res.status(404).json({ message: "Parent task not found" });
+    }
+
+    // Emit socket event to the task room
+    io.to(task._id.toString()).emit("subtask:updated", subTask);
+
     res.json(subTask);
   } catch (err) {
     console.error("Toggle subtask error:", err);
-    res.status(500).json({ message: "Failed to update subtask" });
+    next(err);
   }
 };
 

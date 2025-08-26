@@ -59,6 +59,12 @@ io.on("connection", (socket) => {
     console.log(`User ${userId} joined their personal room`);
   });
 
+  // ✅ Join a task room (new)
+  socket.on("joinTask", (taskId) => {
+    socket.join(taskId);
+    console.log(`User joined task room: ${taskId}`);
+  });
+
   // Listen for drag-and-drop events
   socket.on("task:move", async (data) => {
     await moveTaskSocket(io, data);

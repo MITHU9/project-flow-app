@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Moon, Sun, Search, Bell, Settings } from "lucide-react";
+import { Moon, Sun, Search, Bell, Settings, X } from "lucide-react";
 import { useLogout } from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../hooks/useAuthContext";
@@ -118,17 +118,38 @@ const Navbar2 = () => {
               {notifications.map((n, index) => (
                 <div
                   key={index}
-                  className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                  className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 flex justify-between items-start cursor-pointer"
                 >
-                  <p className="font-medium text-gray-900 dark:text-white">
-                    {n.message}
-                  </p>
-                  <p className="text-gray-500 dark:text-gray-300 text-sm">
-                    Task: {n.task.title}
-                  </p>
-                  <p className="text-gray-400 dark:text-gray-400 text-xs">
-                    {new Date(n.task.deadline).toLocaleString()}
-                  </p>
+                  <div>
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {n.message}
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-300 text-sm">
+                      Task: {n.task.title}
+                    </p>
+                    <p className="text-gray-400 dark:text-gray-400 text-xs">
+                      {new Date(n.task.deadline).toLocaleString()}
+                    </p>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent marking as read when clicking X
+                      const updatedNotifications = notifications.filter(
+                        (_, i) => i !== index
+                      );
+                      setNotifications(updatedNotifications);
+                      setUnreadCount(
+                        updatedNotifications.filter((n) => !n.read).length
+                      );
+                      localStorage.setItem(
+                        "notifications",
+                        JSON.stringify(updatedNotifications)
+                      );
+                    }}
+                    className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                  >
+                    <X className="h-4 w-4 text-gray-500 dark:text-gray-300 cursor-pointer" />
+                  </button>
                 </div>
               ))}
             </div>

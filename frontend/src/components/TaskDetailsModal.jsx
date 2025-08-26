@@ -6,10 +6,26 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 import { useTask, useToggleSubTask } from "../hooks/useTask";
+import { useEffect, useState } from "react";
+import { useTaskRealtime } from "../hooks/useTaskRealtime";
 
 const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
+  const [subTasks, setSubTasks] = useState([]);
+
   const { data: task, isLoading } = useTask(taskId);
   const toggleMutation = useToggleSubTask();
+
+  // Load subtasks into state when task changes
+  useEffect(() => {
+    if (task?.subTasks) setSubTasks(task.subTasks);
+  }, [task]);
+
+  // 👇 Realtime updates update local state
+  useTaskRealtime(taskId, (updatedSubTask) => {
+    setSubTasks((prev) =>
+      prev.map((s) => (s._id === updatedSubTask._id ? updatedSubTask : s))
+    );
+  });
 
   if (isLoading) return null;
 
@@ -41,11 +57,11 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
           </p>
           <p>
             <strong>Deadline:</strong>{" "}
-            {new Date(task?.deadline).toLocaleDateString()}
+            {task?.deadline && new Date(task.deadline).toLocaleDateString()}
           </p>
           <p>
             <strong>Created:</strong>{" "}
-            {new Date(task?.createdAt).toLocaleDateString()}
+            {task?.createdAt && new Date(task.createdAt).toLocaleDateString()}
           </p>
         </div>
 
@@ -95,7 +111,7 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
         <div className="mt-4">
           <h3 className="font-semibold text-white">Subtasks</h3>
           <ul className="space-y-2 mt-2">
-            {task?.subTasks?.map((sub) => (
+            {subTasks.map((sub) => (
               <li
                 key={sub._id}
                 className="flex items-center justify-between bg-gray-700 p-2 rounded-lg"
