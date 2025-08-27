@@ -1,6 +1,8 @@
 import Project from "../models/Project.js";
 import Board from "../models/Board.js";
 import Task from "../models/Task.js";
+import Comment from "../models/Comment.js";
+import Subtask from "../models/Subtask.js";
 
 // Create new project
 export const createProject = async (req, res) => {
@@ -98,14 +100,32 @@ export const updateProject = async (req, res) => {
 // Delete project
 export const deleteProject = async (req, res) => {
   try {
-    const project = await Project.findByIdAndDelete(req.params.id);
+    const projectId = req.params.id;
+
+    // Find the project
+    const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: "Project not found" });
 
-    // Optionally delete associated boards and tasks
-    await Board.deleteMany({ _id: { $in: project.boards } });
-    await Task.deleteMany({ board: { $in: project.boards } });
+    // 1. Delete all boards associated with the project
+    const boards = await Board.find({ _id: { $in: project.boards } });
 
-    res.json({ message: "Project deleted successfully" });
+    for (const board of boards) {
+      // 2. Delete all tasks under each board
+      const tasks = await Task.find({ boardId: board._id });
+      for (const task of tasks) {
+        // 3. Delete all comments and subtasks linked to each task
+        await Comment.deleteMany({ _id: { $in: task.comments } });
+        await Subtask.deleteMany({ _id: { $in: task.subTasks } });
+      }
+      await Task.deleteMany({ boardId: board._id }); // Delete all tasks for this board
+    }
+
+    await Board.deleteMany({ _id: { $in: project.boards } }); // Delete all boards
+
+    // 4. Finally, delete the project itself
+    await Project.findByIdAndDelete(projectId);
+
+    res.json({ message: "Project and all related data deleted successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to delete project" });

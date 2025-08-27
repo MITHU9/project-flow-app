@@ -1,6 +1,18 @@
 import { useForm, useFieldArray } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { X } from "lucide-react";
+import {
+  X,
+  User,
+  Flag,
+  Calendar,
+  Tag,
+  Check,
+  Plus,
+  Trash2,
+  Paperclip,
+  Upload,
+  MessageCircle,
+} from "lucide-react";
 import { taskSchema } from "../validation/taskSchema";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { useState } from "react";
@@ -17,10 +29,7 @@ const TaskForm = ({ isModalOpen, onClose, onTaskAdd, isLoading }) => {
     formState: { errors },
   } = useForm({
     resolver: yupResolver(taskSchema),
-    defaultValues: {
-      taskPoints: [],
-      comments: [],
-    },
+    defaultValues: { taskPoints: [], comments: [] },
     shouldFocusError: false,
   });
 
@@ -39,6 +48,7 @@ const TaskForm = ({ isModalOpen, onClose, onTaskAdd, isLoading }) => {
 
   const [subtaskInput, setSubtaskInput] = useState("");
   const [commentInput, setCommentInput] = useState("");
+  const [attachment, setAttachment] = useState(null);
 
   const handleAddTaskPoint = () => {
     if (!subtaskInput.trim()) return;
@@ -56,6 +66,28 @@ const TaskForm = ({ isModalOpen, onClose, onTaskAdd, isLoading }) => {
     updateTaskPoint(index, { ...field, completed: !field.completed });
   };
 
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0]; // single file
+    if (file) {
+      setAttachment({
+        id: file.name,
+        name: file.name,
+        size: file.size,
+        file,
+      });
+    }
+  };
+
+  const removeAttachment = () => {
+    setAttachment(null);
+  };
+
+  const formatFileSize = (size) => {
+    if (size < 1024) return size + " B";
+    if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
+    return (size / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
   const onSubmit = (data) => {
     try {
       const payload = {
@@ -68,9 +100,8 @@ const TaskForm = ({ isModalOpen, onClose, onTaskAdd, isLoading }) => {
           text: c.text,
           author: user?._id,
         })),
-        attachment: data.attachment?.[0] || null,
+        attachment: attachment?.file || null,
       };
-
       if (onTaskAdd) onTaskAdd(payload);
     } catch (err) {
       console.error("Failed to create task", err);
@@ -80,21 +111,22 @@ const TaskForm = ({ isModalOpen, onClose, onTaskAdd, isLoading }) => {
   if (!isModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-gray-800 text-gray-300 rounded-2xl w-full max-w-4xl max-h-[90vh] p-8 shadow-xl relative overflow-auto">
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-6 right-6 text-gray-400 hover:text-gray-200 cursor-pointer"
-        >
-          <X size={24} />
-        </button>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            Create New Task
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <X className="w-5 h-5 text-gray-500" />
+          </button>
+        </div>
 
-        <h2 className="text-2xl font-semibold mb-6">Add Task</h2>
-
-        {/* Debug errors */}
         {Object.keys(errors).length > 0 && (
-          <div className="text-red-400 text-sm mb-4">
+          <div className="text-red-500 text-sm p-4">
             {Object.entries(errors).map(([field, err]) => (
               <div key={field}>
                 {field}: {err?.message}
@@ -103,208 +135,290 @@ const TaskForm = ({ isModalOpen, onClose, onTaskAdd, isLoading }) => {
           </div>
         )}
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="grid gap-6 grid-cols-1 md:grid-cols-2"
-        >
-          {/* Title */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Title</label>
-            <input
-              {...register("title")}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
-            <p className="text-red-500 text-sm mt-1">{errors.title?.message}</p>
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <span className="flex items-center space-x-2">
+                    <span>Task Title</span>
+                    <span className="text-red-500">*</span>
+                  </span>
+                </label>
+                <input
+                  {...register("title")}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter task title..."
+                />
+              </div>
 
-          {/* Description */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Description</label>
-            <textarea
-              {...register("description")}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Description
+                </label>
+                <textarea
+                  {...register("description")}
+                  rows={4}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 resize-none"
+                  placeholder="Enter task description..."
+                />
+              </div>
 
-          {/* Assigned User */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Assigned User</label>
-            <select
-              {...register("assignedUser")}
-              className="w-full p-3 bg-gray-700 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select a user</option>
-              {allUsers?.map((user) => (
-                <option key={user._id} value={user._id}>
-                  {user.name}
-                </option>
-              ))}
-            </select>
-            <p className="text-red-500 text-sm mt-1">
-              {errors.assignedUser?.message}
-            </p>
-          </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className=" text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-2">
+                    <User className="w-4 h-4" />
+                    <span>Assigned User</span>
+                  </label>
+                  <select
+                    {...register("assignedUser")}
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Select a user</option>
+                    {allUsers?.map((u) => (
+                      <option key={u._id} value={u._id}>
+                        {u.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-          {/* Deadline */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Deadline</label>
-            <input
-              type="date"
-              {...register("deadline")}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+                <div>
+                  <label className=" text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-2">
+                    <Flag className="w-4 h-4" />
+                    <span>Priority</span>
+                  </label>
+                  <select
+                    {...register("priority")}
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
 
-          {/* Priority */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Priority</label>
-            <select
-              {...register("priority")}
-              className="w-full p-3 bg-gray-800 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
-          </div>
-
-          {/* Status */}
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Status</label>
-            <select
-              {...register("status")}
-              className="w-full p-3 bg-gray-800 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="todo">To Do</option>
-              <option value="progress">In Progress</option>
-              <option value="done">Done</option>
-            </select>
-          </div>
-
-          {/* Tags */}
-          <div className="flex flex-col md:col-span-2">
-            <label className="text-sm font-medium mb-1">
-              Tags (comma separated)
-            </label>
-            <input
-              {...register("tags")}
-              className="w-full p-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Subtasks */}
-          <div className="flex flex-col md:col-span-2">
-            <label className="text-sm font-medium mb-2">Subtasks</label>
-            <div className="flex gap-2 mb-2">
-              <input
-                value={subtaskInput}
-                onChange={(e) => setSubtaskInput(e.target.value)}
-                placeholder="New subtask"
-                className="flex-1 p-2 rounded-lg border border-gray-300"
-              />
-              <button
-                type="button"
-                onClick={handleAddTaskPoint}
-                className="px-4 bg-blue-600 text-white rounded-lg"
-              >
-                + Add
-              </button>
-            </div>
-            <ul className="space-y-2">
-              {taskPointFields.map((field, index) => (
-                <li
-                  key={field.id}
-                  className="flex items-center justify-between bg-gray-700 p-2 rounded-lg"
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Status
+                </label>
+                <select
+                  {...register("status")}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={field.completed}
-                      onChange={() => toggleTaskPointComplete(index, field)}
-                    />
-                    <span
-                      className={`${
-                        field.completed ? "line-through text-gray-400" : ""
-                      }`}
-                    >
-                      {field.text}
-                    </span>
-                  </div>
+                  <option value="todo">To Do</option>
+                  <option value="progress">In Progress</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+
+              <div>
+                <label className=" text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>Deadline</span>
+                </label>
+                <input
+                  type="date"
+                  {...register("deadline")}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className=" text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-2">
+                  <Tag className="w-4 h-4" />
+                  <span>Tags (comma separated)</span>
+                </label>
+                <input
+                  {...register("tags")}
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g. frontend, urgent, client"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className=" text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-2">
+                  <Check className="w-4 h-4" />
+                  <span>Subtasks</span>
+                </label>
+                <div className="flex space-x-2 mb-3">
+                  <input
+                    value={subtaskInput}
+                    onChange={(e) => setSubtaskInput(e.target.value)}
+                    placeholder="New subtask"
+                    className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg"
+                  />
                   <button
                     type="button"
-                    onClick={() => removeTaskPoint(index)}
-                    className="px-2 py-1 bg-red-500 text-white rounded-lg"
+                    onClick={handleAddTaskPoint}
+                    className="px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600"
                   >
-                    Remove
+                    <Plus className="w-4 h-4" />
                   </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Comments */}
-          <div className="flex flex-col md:col-span-2">
-            <label className="text-sm font-medium mb-2">Comments</label>
-            <div className="flex gap-2 mb-2">
-              <input
-                value={commentInput}
-                onChange={(e) => setCommentInput(e.target.value)}
-                placeholder="Write a comment..."
-                className="flex-1 p-2 rounded-lg border border-gray-300"
-              />
-              <button
-                type="button"
-                onClick={handleAddComment}
-                className="px-4 bg-blue-600 text-white rounded-lg"
-              >
-                + Add
-              </button>
-            </div>
-
-            <ul className="space-y-3">
-              {commentFields.map((field, index) => (
-                <li
-                  key={field.id}
-                  className="bg-gray-700 p-3 rounded-lg flex flex-col"
-                >
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-semibold">{field.author}</span>{" "}
-                      <span className="text-xs text-gray-400">
-                        {new Date().toLocaleString()}
+                </div>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {taskPointFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className={`flex items-center space-x-3 p-3 rounded-lg border ${
+                        field.completed
+                          ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                          : "bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => toggleTaskPointComplete(index, field)}
+                        className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                          field.completed
+                            ? "bg-green-500 border-green-500 text-white"
+                            : "border-gray-300 dark:border-gray-600 hover:border-green-500"
+                        }`}
+                      >
+                        {field.completed && <Check className="w-3 h-3" />}
+                      </button>
+                      <span
+                        className={`flex-1 text-sm ${
+                          field.completed
+                            ? "text-green-700 dark:text-green-300 line-through"
+                            : "text-gray-700 dark:text-gray-300"
+                        }`}
+                      >
+                        {field.text}
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => removeTaskPoint(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className=" text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-2">
+                  <Paperclip className="w-4 h-4" />
+                  <span>Attachment</span>
+                </label>
+                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 text-center hover:border-blue-500 transition-colors">
+                  <input
+                    type="file"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="cursor-pointer flex flex-col items-center space-y-2"
+                  >
+                    <Upload className="w-8 h-8 text-gray-400" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">
+                      Click to upload a file
+                    </span>
+                  </label>
+                </div>
+
+                {attachment && (
+                  <div className="mt-3 flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <Paperclip className="w-4 h-4 text-gray-500" />
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
+                          {attachment.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {formatFileSize(attachment.size)}
+                        </p>
+                      </div>
                     </div>
                     <button
                       type="button"
-                      onClick={() => removeComment(index)}
-                      className="px-2 py-1 bg-red-500 text-white rounded-lg"
+                      onClick={removeAttachment}
+                      className="text-red-500 hover:text-red-700"
                     >
-                      Remove
+                      <X className="w-4 h-4" />
                     </button>
                   </div>
-                  <p className="mt-2">{field.text}</p>
-                </li>
-              ))}
-            </ul>
+                )}
+              </div>
+
+              <div>
+                <label className=" text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center space-x-2">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Comments</span>
+                </label>
+                <div className="flex space-x-2 mb-3">
+                  <input
+                    value={commentInput}
+                    onChange={(e) => setCommentInput(e.target.value)}
+                    placeholder="Write a comment..."
+                    className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddComment}
+                    className="px-4 py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="space-y-3 max-h-48 overflow-y-auto">
+                  {commentFields.map((field, index) => (
+                    <div
+                      key={field.id}
+                      className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-medium">
+                              {field.author?.[0]}
+                            </span>
+                          </div>
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            {field.author}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {new Date().toLocaleString()}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeComment(index)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {field.text}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Attachment */}
-          <div className="flex flex-col md:col-span-2">
-            <label className="text-sm font-medium mb-1">Attachment</label>
-            <input
-              type="file"
-              {...register("attachment")}
-              className="w-full p-2 rounded-lg border border-gray-300"
-            />
-          </div>
-
-          {/* Submit */}
-          <div className="col-span-2 flex justify-end mt-4">
+          <div className="flex justify-end space-x-3 pt-6 mt-6 border-t border-gray-200 dark:border-gray-700">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 font-medium"
             >
-              {isLoading ? "Creating..." : "Add Task"}
+              {isLoading ? "Saving..." : "Save Task"}
             </button>
           </div>
         </form>

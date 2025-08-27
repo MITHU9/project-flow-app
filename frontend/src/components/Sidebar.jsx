@@ -9,6 +9,7 @@ import {
   Settings,
   Bell,
   Archive,
+  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import CreateProjectModal from "./CreateProjectModal";
@@ -16,10 +17,13 @@ import { useCreateProject } from "../hooks/useCreateProject";
 import toast from "react-hot-toast";
 import { useProjects } from "../hooks/useProjects";
 import { useAuthContext } from "../hooks/useAuthContext";
+import { useDeleteProject } from "../hooks/useDeleteProject";
+import { queryClient } from "../utils/queryClient";
 
 const Sidebar = ({ isCollapsed, onToggle }) => {
   const [open, setOpen] = useState(false);
   const createProject = useCreateProject();
+  const deleteProject = useDeleteProject();
   const { user } = useAuthContext();
   const { data: projects = [], isLoading, isError } = useProjects(user._id);
 
@@ -197,25 +201,47 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
             </div>
             <div className="space-y-1">
               {projects.map((project) => (
-                <NavLink
-                  to={`/project/${project._id}`}
-                  key={project._id}
-                  className={({ isActive }) =>
-                    `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
-                      isActive
-                        ? "bg-gray-100 dark:bg-gray-800"
-                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                    }`
-                  }
-                >
-                  <div
-                    className="w-3 h-3 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: project.color }}
-                  />
-                  <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
-                    {project.name}
-                  </span>
-                </NavLink>
+                <div key={project._id}>
+                  <NavLink
+                    to={`/project/${project._id}`}
+                    className={({ isActive }) =>
+                      `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                        isActive
+                          ? "bg-gray-100 dark:bg-gray-800"
+                          : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                      }`
+                    }
+                  >
+                    <div
+                      className="w-3 h-3 rounded-full flex-shrink-0"
+                      style={{ backgroundColor: project.color }}
+                    />
+                    <div className="flex justify-between items-center w-full">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                        {project.name}
+                      </p>
+                      <button
+                        onClick={() =>
+                          deleteProject.mutate(project._id, {
+                            onSuccess: () => {
+                              toast.success("Project deleted successfully!");
+                              queryClient.invalidateQueries({
+                                queryKey: ["projects", project._id],
+                              });
+                            },
+                            onError: (err) => {
+                              toast.error("Failed to delete project");
+                              console.error(err);
+                            },
+                          })
+                        }
+                        className="p-1 rounded cursor-pointer"
+                      >
+                        <Trash2 className="h-4 w-4 text-red-500" />
+                      </button>
+                    </div>
+                  </NavLink>
+                </div>
               ))}
             </div>
           </div>
