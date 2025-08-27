@@ -39,11 +39,11 @@
 <ul>
   <li>🚀 Node.js + Express</li>
   <li>🍃 MongoDB (Mongoose ORM)</li>
-  <li>🐘 PostgreSQL (pg or Sequelize ORM)</li>
+  <li>🐘 PostgreSQL (pg)</li>
   <li>🔑 JWT Authentication</li>
   <li>🔄 Socket.IO</li>
   <li>📩 Nodemailer</li>
-  <li>☁️ Cloudinary / AWS S3 (file uploads)</li>
+  <li>☁️ Cloudinary </li>
 </ul>
 
 ---
@@ -80,7 +80,6 @@ taskflow/
 
 <h3>1️⃣ Clone the repository</h3>
 
-````bash
 git clone https://github.com/your-username/taskflow.git
 cd taskflow
 
@@ -100,5 +99,4 @@ npm run dev
 <h2>📸 Screenshots</h2> <ul> <li>🔐 Authentication Pages (Login/Register)</li> <li>📝 Kanban Board with drag & drop</li> <li>📊 Analytics Dashboard (charts & reports)</li> </ul>
 
 <h2>🚀 Deployment</h2> <ul> <li><b>Frontend</b> → Vercel / Netlify</li> <li><b>Backend</b> → Render / Railway / AWS</li> <li><b>MongoDB</b> → MongoDB Atlas</li> <li><b>PostgreSQL</b> → Neon</li> </ul>
-<h2>👨‍💻 Author</h2> <p> <b>Your Name</b><br/> <a href="https://github.com/your-username">GitHub</a> | <a href="https://linkedin.com/in/your-link">LinkedIn</a> </p> ```
-````
+<h2>👨‍💻 Author</h2> <p> <b>Your Name</b><br/> <a href="https://github.com/your-username">GitHub</a> | <a href="https://linkedin.com/in/your-link">LinkedIn</a> </p>
