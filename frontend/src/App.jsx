@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Layout from "./layout/Layout";
 import KanbanPage from "./pages/KanbanPage";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             >
               {/* Optional project route */}
               <Route path="project/:id" element={<KanbanPage />} />
+              <Route path="dashboard" element={<Dashboard />} />
               <Route
                 path="project"
                 element={

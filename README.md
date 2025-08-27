@@ -97,6 +97,15 @@ npm install
 npm run dev
 
 <h2>📸 Screenshots</h2> <ul> <li>🔐 Authentication Pages (Login/Register)</li> <li>📝 Kanban Board with drag & drop</li> <li>📊 Analytics Dashboard (charts & reports)</li> </ul>
+<img src="./frontend/public/auth1.png" alt="register" width="800">
 
-<h2>🚀 Deployment</h2> <ul> <li><b>Frontend</b> → Vercel / Netlify</li> <li><b>Backend</b> → Render / Railway / AWS</li> <li><b>MongoDB</b> → MongoDB Atlas</li> <li><b>PostgreSQL</b> → Neon</li> </ul>
+<img src="./frontend/public/kanban.png" alt="kanban board" width="800">
+
+<img src="./frontend/public/dash.png" alt="dashboard" width="800">
+
+### Kanban board
+
+</div>
+
+<h2>🚀 Deployment</h2> <ul> <li><b>Frontend</b> → Vercel / Netlify</li> <li><b>Backend</b> → Render</li> <li><b>MongoDB</b> → MongoDB Atlas</li> <li><b>PostgreSQL</b> → Neon</li> </ul>
 <h2>👨‍💻 Author</h2> <p> <b>Shahariar Mithu</b><br/> <a href="https://github.com/MITHU9">GitHub</a> | <a href="https://www.linkedin.com/in/shahariar-mithu/">LinkedIn</a> </p>

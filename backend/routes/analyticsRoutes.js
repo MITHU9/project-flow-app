@@ -3,7 +3,7 @@ import { protect } from "../middlewares/authMiddleware.js";
 import {
   getTaskStats,
   getUserPerformance,
-} from "../controllers/analyticsController";
+} from "../controllers/analyticsController.js";
 
 const router = express.Router();
 
