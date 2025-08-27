@@ -264,6 +264,49 @@ export const toggleSubTask = async (req, res, next) => {
   }
 };
 
+// Update task order (supports cross-board)
+export const reorderTasks = async (req, res, next) => {
+  try {
+    const { tasks } = req.body;
+
+    // Update all tasks
+    for (const t of tasks) {
+      await Task.findByIdAndUpdate(t._id, {
+        order: t.order,
+        boardId: t.boardId,
+      });
+    }
+
+    // Update boards' tasks arrays properly
+    const boardIds = [...new Set(tasks.map((t) => t.boardId.toString()))];
+
+    for (const boardId of boardIds) {
+      // Only keep the tasks belonging to this board
+      const boardTasks = tasks
+        .filter((t) => t.boardId.toString() === boardId)
+        .sort((a, b) => a.order - b.order)
+        .map((t) => t._id); // Replace the tasks array
+
+      await Board.findByIdAndUpdate(boardId, { tasks: boardTasks });
+    }
+
+    // Emit real-time updates to all boards
+    boardIds.forEach((boardId) => {
+      io.to(boardId).emit(
+        "tasks:reordered",
+        tasks
+          .filter((t) => t.boardId.toString() === boardId)
+          .sort((a, b) => a.order - b.order)
+      );
+    });
+
+    res.json({ message: "Tasks reordered successfully" });
+  } catch (err) {
+    console.error("Reorder tasks error:", err);
+    next(err);
+  }
+};
+
 // ---------------- Delete Task ----------------
 export const deleteTask = async (req, res) => {
   try {

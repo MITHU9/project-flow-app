@@ -65,6 +65,11 @@ io.on("connection", (socket) => {
     console.log(`User joined task room: ${taskId}`);
   });
 
+  // Join board rooms for realtime updates
+  socket.on("joinBoard", (boardId) => {
+    socket.join(boardId);
+  });
+
   // Listen for drag-and-drop events
   socket.on("task:move", async (data) => {
     await moveTaskSocket(io, data);
