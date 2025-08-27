@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Archive, MoreHorizontal, Plus, Settings } from "lucide-react";
 import { Button } from "../components/ui/button";
 import TaskForm from "./AddTaskDialog";
 import { useCreateTask } from "../hooks/useCreateTask";
@@ -150,14 +150,43 @@ const KanbanBoard = ({ boards, id, currentUserId }) => {
               >
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="font-semibold text-white">{board.title}</h2>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleAddTask(board._id)}
-                    className="border-white text-white hover:bg-white hover:text-gray-800"
-                  >
-                    <Plus size={16} />
-                  </Button>
+                  <div className="flex items-center space-x-1">
+                    <Button
+                      size="sm"
+                      variant="no-outline"
+                      onClick={() => handleAddTask(board._id)}
+                      className=" text-white hover:bg-white/10 hover:text-gray-300 cursor-pointer"
+                    >
+                      <Plus size={16} />
+                    </Button>
+
+                    <div className="relative group">
+                      <button className="p-1.5 rounded-lg hover:bg-white dark:hover:bg-gray-800 transition-colors cursor-pointer">
+                        <MoreHorizontal className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                      </button>
+
+                      {/* Dropdown Menu */}
+                      <div className="absolute right-0 top-8 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                        <div className="py-1">
+                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            Rename Board
+                          </button>
+                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                            Duplicate Board
+                          </button>
+                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2">
+                            <Archive className="w-4 h-4" />
+                            <span>Archive Board</span>
+                          </button>
+                          <hr className="my-1 border-gray-200 dark:border-gray-700" />
+                          <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2">
+                            <Settings className="w-4 h-4" />
+                            <span>Board Settings</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-3">
                   {board.tasks.length > 0 ? (

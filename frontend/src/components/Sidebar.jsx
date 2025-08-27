@@ -4,7 +4,6 @@ import {
   BarChart3,
   ChevronLeft,
   Plus,
-  Calendar,
   Users,
   Settings,
   Bell,
@@ -138,8 +137,8 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
               }`
             }
           >
-            <Calendar className="h-5 w-5 flex-shrink-0" />
-            {!isCollapsed && <span className="font-medium">Calendar</span>}
+            <Archive className="w-5 h-5 flex-shrink-0" />
+            {!isCollapsed && <span className="font-medium">Archive</span>}
           </NavLink>
 
           <NavLink

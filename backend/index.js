@@ -10,6 +10,7 @@ import { v2 as cloudinary } from "cloudinary";
 import authRoutes from "./routes/authRoutes.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -34,6 +35,7 @@ cloudinary.config({
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 // Error handler
 app.use(errorHandler);

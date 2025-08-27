@@ -4,6 +4,7 @@ import Task from "../models/Task.js";
 import Board from "../models/Board.js";
 import Project from "../models/Project.js";
 import { io } from "../index.js";
+import { sql } from "../config/dbSQL.js";
 
 // ---------------- Create Task ----------------
 export const createTask = async (req, res) => {
@@ -81,6 +82,20 @@ export const createTask = async (req, res) => {
     });
 
     await task.save();
+
+    await sql.query(
+      `INSERT INTO task_reports (task_id, project_id, board_id, assigned_user, status, priority, deadline, created_at) 
+   VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())`,
+      [
+        task._id.toString(),
+        projectId,
+        boardId,
+        assignedUser || null,
+        status,
+        priority,
+        deadline || null,
+      ]
+    );
 
     // 4️⃣ Add task to board
     board.tasks.push(task._id);
@@ -168,7 +183,7 @@ export const updateTask = async (req, res) => {
     task.deadline = deadline || task.deadline;
     task.priority = priority || task.priority;
     task.status = status || task.status;
-    task.attachments = attachments || task.attachments;
+    task.attachment = attachment || task.attachment;
     task.tags = tags || task.tags;
 
     // Update board if changed
@@ -219,6 +234,21 @@ export const updateTask = async (req, res) => {
     }
 
     await task.save();
+
+    await sql.query(
+      `UPDATE task_reports 
+   SET project_id=$1, board_id=$2, assigned_user=$3, status=$4, priority=$5, deadline=$6 
+   WHERE task_id=$7`,
+      [
+        task.projectId.toString(),
+        task.boardId.toString(),
+        task.assignedUser ? task.assignedUser.toString() : null,
+        task.status,
+        task.priority,
+        task.deadline || null,
+        task._id.toString(),
+      ]
+    );
 
     const populatedTask = await Task.findById(task._id)
       .populate("assignedUser")
@@ -338,6 +368,10 @@ export const deleteTask = async (req, res) => {
       );
       await board.save();
     }
+
+    await sql.query("DELETE FROM task_reports WHERE task_id=$1", [
+      task._id.toString(),
+    ]);
 
     res.json({ message: "Task deleted successfully" });
   } catch (err) {

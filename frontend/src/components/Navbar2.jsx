@@ -128,7 +128,7 @@ const Navbar2 = () => {
                       Task: {n.task.title}
                     </p>
                     <p className="text-gray-400 dark:text-gray-400 text-xs">
-                      {new Date(n.task.deadline).toLocaleString()}
+                      Deadline:{new Date(n.task.deadline).toLocaleString()}
                     </p>
                   </div>
                   <button

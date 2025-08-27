@@ -80,7 +80,7 @@ taskflow/
 
 <h3>1️⃣ Clone the repository</h3>
 
-git clone https://github.com/your-username/taskflow.git
+git https://github.com/MITHU9/project-flow-app.git
 cd taskflow
 
 <h2>📌 Backend Setup</h2> <h3>Step 1 – Install dependencies</h3>
@@ -88,7 +88,7 @@ cd backend
 npm install
 <h3>Step 3 – Run the backend</h3>
 npm run backend
-👉 Backend runs on: <code>http://localhost:5000
+👉 Backend runs on: <code>http://localhost:3000
 </code>
 <h2>📌 Frontend Setup</h2> <h3>Step 1 – Install dependencies</h3>
 cd frontend
@@ -99,4 +99,4 @@ npm run dev
 <h2>📸 Screenshots</h2> <ul> <li>🔐 Authentication Pages (Login/Register)</li> <li>📝 Kanban Board with drag & drop</li> <li>📊 Analytics Dashboard (charts & reports)</li> </ul>
 
 <h2>🚀 Deployment</h2> <ul> <li><b>Frontend</b> → Vercel / Netlify</li> <li><b>Backend</b> → Render / Railway / AWS</li> <li><b>MongoDB</b> → MongoDB Atlas</li> <li><b>PostgreSQL</b> → Neon</li> </ul>
-<h2>👨‍💻 Author</h2> <p> <b>Your Name</b><br/> <a href="https://github.com/your-username">GitHub</a> | <a href="https://linkedin.com/in/your-link">LinkedIn</a> </p>
+<h2>👨‍💻 Author</h2> <p> <b>Shahariar Mithu</b><br/> <a href="https://github.com/MITHU9">GitHub</a> | <a href="https://www.linkedin.com/in/shahariar-mithu/">LinkedIn</a> </p>
