@@ -118,7 +118,7 @@ const TaskCard = ({ task }) => {
               </span>
             </div>
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              {task.assignedUser.name.split(" ")[0]}
+              {task?.assignedUser?.name.split(" ")[0]}
             </span>
           </div>
 

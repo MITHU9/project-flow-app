@@ -267,9 +267,9 @@ export const toggleSubTask = async (req, res, next) => {
 // Update task order (supports cross-board)
 export const reorderTasks = async (req, res, next) => {
   try {
-    const { tasks } = req.body;
+    const { tasks, sourceBoardId, destinationBoardId, movedTaskId } = req.body;
 
-    // Update all tasks
+    // 1. Update each task's order + boardId
     for (const t of tasks) {
       await Task.findByIdAndUpdate(t._id, {
         order: t.order,
@@ -277,20 +277,33 @@ export const reorderTasks = async (req, res, next) => {
       });
     }
 
-    // Update boards' tasks arrays properly
+    // 2. Update boards' task arrays
     const boardIds = [...new Set(tasks.map((t) => t.boardId.toString()))];
 
     for (const boardId of boardIds) {
-      // Only keep the tasks belonging to this board
       const boardTasks = tasks
         .filter((t) => t.boardId.toString() === boardId)
         .sort((a, b) => a.order - b.order)
-        .map((t) => t._id); // Replace the tasks array
+        .map((t) => t._id);
 
       await Board.findByIdAndUpdate(boardId, { tasks: boardTasks });
     }
 
-    // Emit real-time updates to all boards
+    // 3. If it's a cross-board move → remove from old board
+    if (
+      sourceBoardId &&
+      destinationBoardId &&
+      sourceBoardId !== destinationBoardId
+    ) {
+      await Board.findByIdAndUpdate(sourceBoardId, {
+        $pull: { tasks: movedTaskId },
+      });
+      await Board.findByIdAndUpdate(destinationBoardId, {
+        $addToSet: { tasks: movedTaskId }, // avoid duplicates
+      });
+    }
+
+    // 4. Emit updates to clients
     boardIds.forEach((boardId) => {
       io.to(boardId).emit(
         "tasks:reordered",

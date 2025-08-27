@@ -102,10 +102,11 @@ const KanbanBoard = ({ boards, id, currentUserId }) => {
 
     // Update local state correctly
     const updatedBoards = [...localBoards];
-    updatedBoards[sourceBoardIndex] =
-      source.droppableId === destination.droppableId
-        ? { ...updatedBoards[sourceBoardIndex], tasks: updatedSourceTasks }
-        : { ...updatedBoards[sourceBoardIndex], tasks: updatedSourceTasks };
+
+    updatedBoards[sourceBoardIndex] = {
+      ...updatedBoards[sourceBoardIndex],
+      tasks: updatedSourceTasks,
+    };
     if (source.droppableId !== destination.droppableId) {
       updatedBoards[destBoardIndex] = {
         ...updatedBoards[destBoardIndex],
@@ -120,8 +121,13 @@ const KanbanBoard = ({ boards, id, currentUserId }) => {
           ? updatedSourceTasks
           : [...updatedSourceTasks, ...updatedDestTasks];
 
-      // Send all tasks in one request to backend
-      await API.patch("/tasks/reorder", { tasks: tasksToUpdate });
+      // ✅ send extra info so backend knows it’s a cross-board move
+      await API.patch("/tasks/reorder", {
+        tasks: tasksToUpdate,
+        sourceBoardId: source.droppableId,
+        destinationBoardId: destination.droppableId,
+        movedTaskId: movedTask._id,
+      });
     } catch (err) {
       console.error("Error updating task order:", err);
     }

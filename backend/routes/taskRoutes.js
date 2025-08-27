@@ -6,6 +6,7 @@ import {
   deleteTask,
   getTaskById,
   getTasks,
+  reorderTasks,
   toggleSubTask,
   updateTask,
 } from "../controllers/taskControllers.js";
@@ -15,6 +16,8 @@ const router = express.Router();
 
 router.post("/", protect, upload, createTask);
 router.patch("/subtask/:subTaskId/toggle", protect, toggleSubTask);
+
+router.patch("/reorder", protect, reorderTasks);
 
 router.get("/:id", protect, getTaskById);
 router.get("/:boardId", protect, getTasks);
