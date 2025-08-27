@@ -80,8 +80,8 @@ taskflow/
 
 <h3>1️⃣ Clone the repository</h3>
 
-git https://github.com/MITHU9/project-flow-app.git
-cd taskflow
+git https://github.com/MITHU9/project-flow-app.git </br>
+cd project-flow-app
 
 <h2>📌 Backend Setup</h2> <h3>Step 1 – Install dependencies</h3>
 cd backend

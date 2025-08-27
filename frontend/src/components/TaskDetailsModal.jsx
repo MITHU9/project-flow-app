@@ -39,9 +39,11 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
         }
       }}
     >
-      <DialogContent className="min-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="min-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 text-gray-200">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{task?.title}</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-white">
+            {task?.title}
+          </DialogTitle>
         </DialogHeader>
 
         {/* Description */}
@@ -50,17 +52,19 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
         {/* Task meta */}
         <div className="grid grid-cols-2 gap-4 text-sm text-gray-400">
           <p>
-            <strong>Status:</strong> {task?.status}
+            <span className="font-semibold text-gray-300">Status:</span>{" "}
+            {task?.status}
           </p>
           <p>
-            <strong>Priority:</strong> {task?.priority}
+            <span className="font-semibold text-gray-300">Priority:</span>{" "}
+            {task?.priority}
           </p>
           <p>
-            <strong>Deadline:</strong>{" "}
+            <span className="font-semibold text-gray-300">Deadline:</span>{" "}
             {task?.deadline && new Date(task.deadline).toLocaleDateString()}
           </p>
           <p>
-            <strong>Created:</strong>{" "}
+            <span className="font-semibold text-gray-300">Created:</span>{" "}
             {task?.createdAt && new Date(task.createdAt).toLocaleDateString()}
           </p>
         </div>
@@ -68,12 +72,12 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
         {/* Tags */}
         {task?.tags?.length > 0 && (
           <div className="mt-3">
-            <strong className="text-white">Tags:</strong>
-            <div className="flex gap-2 mt-1 flex-wrap">
+            <span className="font-semibold text-gray-300">Tags:</span>
+            <div className="flex gap-2 mt-2 flex-wrap">
               {task.tags.map((tag, idx) => (
                 <span
                   key={idx}
-                  className="px-2 py-1 text-xs bg-gray-700 rounded-full text-white"
+                  className="px-2 py-1 text-xs bg-gray-800 rounded-full text-gray-200 border border-gray-700"
                 >
                   {tag}
                 </span>
@@ -85,12 +89,12 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
         {/* Attachment */}
         {task?.attachment && (
           <div className="mt-3">
-            <strong className="text-white">Attachment:</strong>
+            <span className="font-semibold text-gray-300">Attachment:</span>
             <a
               href={task.attachment}
               target="_blank"
               rel="noopener noreferrer"
-              className="block mt-1 text-blue-400 underline"
+              className="block mt-1 text-blue-400 hover:text-blue-300 underline"
             >
               View File
             </a>
@@ -100,8 +104,8 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
         {/* Assigned User */}
         {task?.assignedUser && (
           <div className="mt-3">
-            <strong className="text-white">Assigned To:</strong>
-            <p className="mt-1 text-gray-300">
+            <span className="font-semibold text-gray-300">Assigned To:</span>
+            <p className="mt-1 text-gray-200">
               {task.assignedUser.name} ({task.assignedUser.email})
             </p>
           </div>
@@ -109,12 +113,12 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
 
         {/* Subtasks */}
         <div className="mt-4">
-          <h3 className="font-semibold text-white">Subtasks</h3>
+          <h3 className="font-semibold text-gray-300">Subtasks</h3>
           <ul className="space-y-2 mt-2">
             {subTasks.map((sub) => (
               <li
                 key={sub._id}
-                className="flex items-center justify-between bg-gray-700 p-2 rounded-lg"
+                className="flex items-center justify-between bg-gray-800 p-2 rounded-lg border border-gray-700"
               >
                 <div className="flex items-center gap-2">
                   <input
@@ -123,13 +127,13 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
                     onChange={() =>
                       toggleMutation.mutate({ subTaskId: sub._id })
                     }
-                    className="h-4 w-4"
+                    className="h-4 w-4 accent-blue-600"
                   />
                   <span
                     className={`${
                       sub.completed
-                        ? "line-through text-gray-400"
-                        : "text-white"
+                        ? "line-through text-gray-500"
+                        : "text-gray-200"
                     }`}
                   >
                     {sub.text}
@@ -143,12 +147,12 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
         {/* Comments */}
         {task?.comments?.length > 0 && (
           <div className="mt-4">
-            <h3 className="font-semibold text-white">Comments</h3>
+            <h3 className="font-semibold text-gray-300">Comments</h3>
             <ul className="space-y-2 mt-2">
               {task.comments.map((comment) => (
                 <li
                   key={comment._id}
-                  className="p-2 rounded bg-gray-800 text-gray-300"
+                  className="p-2 rounded bg-gray-800 text-gray-200 border border-gray-700"
                 >
                   <p>{comment.text}</p>
                   {comment.author && (

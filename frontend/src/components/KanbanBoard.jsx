@@ -149,13 +149,15 @@ const KanbanBoard = ({ boards, id, currentUserId }) => {
                 }}
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-white">{board.title}</h2>
+                  <h2 className="font-semibold text-gray-700 dark:text-white">
+                    {board.title}
+                  </h2>
                   <div className="flex items-center space-x-1">
                     <Button
                       size="sm"
                       variant="no-outline"
                       onClick={() => handleAddTask(board._id)}
-                      className=" text-white hover:bg-white/10 hover:text-gray-300 cursor-pointer"
+                      className="text-gray-600 dark:text-white hover:bg-white/10 hover:text-gray-300 cursor-pointer"
                     >
                       <Plus size={16} />
                     </Button>
