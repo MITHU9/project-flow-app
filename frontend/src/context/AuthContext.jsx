@@ -8,6 +8,14 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const { data: user, isLoading } = useMe();
 
+  // Load notifications from localStorage initially
+  const storedNotifications =
+    JSON.parse(localStorage.getItem("notifications")) || [];
+  const [notifications, setNotifications] = useState(storedNotifications);
+  const [unreadCount, setUnreadCount] = useState(
+    storedNotifications.filter((n) => !n.read).length
+  );
+
   // Theme state
   const [isDark, setIsDark] = useState(() => {
     if (typeof window !== "undefined") {
@@ -34,7 +42,18 @@ export const AuthProvider = ({ children }) => {
   const toggleTheme = () => setIsDark(!isDark);
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isDark, toggleTheme }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isDark,
+        toggleTheme,
+        notifications,
+        setNotifications,
+        unreadCount,
+        setUnreadCount,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

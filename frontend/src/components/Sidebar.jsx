@@ -23,7 +23,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
   const [open, setOpen] = useState(false);
   const createProject = useCreateProject();
   const deleteProject = useDeleteProject();
-  const { user } = useAuthContext();
+  const { user, notifications } = useAuthContext();
   const { data: projects = [], isLoading, isError } = useProjects(user._id);
 
   const handleCreateProject = (projectData) => {
@@ -199,49 +199,76 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
               </button>
             </div>
             <div className="space-y-1">
-              {projects.map((project) => (
-                <div key={project._id}>
-                  <NavLink
-                    to={`/project/${project._id}`}
-                    className={({ isActive }) =>
-                      `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
-                        isActive
-                          ? "bg-gray-100 dark:bg-gray-800"
-                          : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                      }`
-                    }
-                  >
-                    <div
-                      className="w-3 h-3 rounded-full flex-shrink-0"
-                      style={{ backgroundColor: project.color }}
-                    />
-                    <div className="flex justify-between items-center w-full">
-                      <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
-                        {project.name}
-                      </p>
-                      <button
-                        onClick={() =>
-                          deleteProject.mutate(project._id, {
-                            onSuccess: () => {
-                              toast.success("Project deleted successfully!");
-                              queryClient.invalidateQueries({
-                                queryKey: ["projects", project._id],
-                              });
-                            },
-                            onError: (err) => {
-                              toast.error("Failed to delete project");
-                              console.error(err);
-                            },
-                          })
-                        }
-                        className="p-1 rounded cursor-pointer"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </button>
-                    </div>
-                  </NavLink>
-                </div>
-              ))}
+              {[
+                ...projects,
+                ...notifications
+                  .filter((n) => n.projectName && n.task?.projectId)
+                  .map((n) => ({
+                    _id: n.task.projectId,
+                    name: n.projectName,
+                    color: "#3B82F6",
+                    fromNotification: true,
+                  })),
+              ]
+                // remove duplicate projects by _id
+                .filter(
+                  (proj, index, self) =>
+                    index === self.findIndex((p) => p._id === proj._id)
+                )
+                .map((project) => (
+                  <div key={project._id}>
+                    <NavLink
+                      to={`/project/${project._id}`}
+                      className={({ isActive }) =>
+                        `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${
+                          isActive
+                            ? "bg-gray-100 dark:bg-gray-800"
+                            : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                        }`
+                      }
+                    >
+                      <div
+                        className="w-3 h-3 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: project.color || "#3B82F6" }}
+                      />
+                      <div className="flex justify-between items-center w-full">
+                        <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
+                          {project.name}
+                          {project.fromNotification && (
+                            <span className="ml-2 text-xs text-blue-500">
+                              (new)
+                            </span>
+                          )}
+                        </p>
+                        {!project.fromNotification &&
+                          project.createdBy?.toString() ===
+                            user._id.toString() && (
+                            <button
+                              onClick={() =>
+                                deleteProject.mutate(project._id, {
+                                  onSuccess: () => {
+                                    toast.success(
+                                      "Project deleted successfully!"
+                                    );
+                                    queryClient.invalidateQueries({
+                                      queryKey: ["projects", project._id],
+                                    });
+                                  },
+                                  onError: (err) => {
+                                    toast.error("Failed to delete project");
+                                    console.error(err);
+                                  },
+                                })
+                              }
+                              className="p-1 rounded cursor-pointer"
+                            >
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </button>
+                          )}
+                      </div>
+                    </NavLink>
+                  </div>
+                ))}
             </div>
           </div>
         )}

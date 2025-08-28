@@ -15,20 +15,24 @@ export function useTaskSocket(currentUserId, setNotifications, setUnreadCount) {
     socket.emit("joinRoom", currentUserId);
 
     socket.on("task:assigned", (data) => {
-      const newNotification = { ...data, read: false };
+      const newNotification = {
+        message: data.message,
+        projectName: data.projectName,
+        task: data.task,
+        read: false,
+        createdAt: new Date().toISOString(),
+      };
+
       const updatedNotifications = [newNotification, ...stored];
 
-      // Update state
       setNotifications(updatedNotifications);
       setUnreadCount((prev) => prev + 1);
 
-      // Update localStorage
       localStorage.setItem(
         "notifications",
         JSON.stringify(updatedNotifications)
       );
 
-      // Update query cache
       queryClient.invalidateQueries({
         queryKey: ["tasks", "project", data.task.projectId],
       });

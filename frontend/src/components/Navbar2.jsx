@@ -6,21 +6,21 @@ import { useAuthContext } from "../hooks/useAuthContext";
 import { useTaskSocket } from "../hooks/useTaskSocket";
 
 const Navbar2 = () => {
-  const { isDark, toggleTheme, user } = useAuthContext();
+  const {
+    isDark,
+    toggleTheme,
+    user,
+    notifications,
+    setNotifications,
+    unreadCount,
+    setUnreadCount,
+  } = useAuthContext();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   const logout = useLogout();
   const navigate = useNavigate();
-
-  // Load notifications from localStorage initially
-  const storedNotifications =
-    JSON.parse(localStorage.getItem("notifications")) || [];
-  const [notifications, setNotifications] = useState(storedNotifications);
-  const [unreadCount, setUnreadCount] = useState(
-    storedNotifications.filter((n) => !n.read).length
-  );
 
   // Setup socket to listen for assigned tasks
   useTaskSocket(user?._id, setNotifications, setUnreadCount);
@@ -127,13 +127,18 @@ const Navbar2 = () => {
                     <p className="text-gray-500 dark:text-gray-300 text-sm">
                       Task: {n.task.title}
                     </p>
+                    {n.projectName && (
+                      <p className="text-blue-500 dark:text-blue-400 text-xs font-medium">
+                        Project: {n.projectName}
+                      </p>
+                    )}
                     <p className="text-gray-400 dark:text-gray-400 text-xs">
-                      Deadline:{new Date(n.task.deadline).toLocaleString()}
+                      Deadline: {new Date(n.task.deadline).toLocaleString()}
                     </p>
                   </div>
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent marking as read when clicking X
+                      e.stopPropagation();
                       const updatedNotifications = notifications.filter(
                         (_, i) => i !== index
                       );

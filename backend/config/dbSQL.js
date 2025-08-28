@@ -6,6 +6,7 @@ import {
 
 export const sql = new Pool({
   connectionString: process.env.SQL_URI,
+  ssl: { rejectUnauthorized: false },
 });
 
 export const connectSQL = async () => {

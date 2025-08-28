@@ -29,6 +29,16 @@ const KanbanBoard = ({ boards, id, currentUserId }) => {
     // Join all board rooms
     boards.forEach((b) => socket.emit("joinBoard", b._id));
 
+    // 📌 Listen for new tasks
+    socket.on("task:created", (newTask) => {
+      console.log("📌 New task created:", newTask);
+      setLocalBoards((prev) =>
+        prev.map((b) =>
+          b._id === newTask.boardId ? { ...b, tasks: [...b.tasks, newTask] } : b
+        )
+      );
+    });
+
     // Listen for real-time reorder
     socket.on("tasks:reordered", ({ boardId, tasks }) => {
       setLocalBoards((prev) =>

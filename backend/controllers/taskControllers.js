@@ -122,7 +122,8 @@ export const createTask = async (req, res) => {
     // 🔔 If assignedUser exists, send a private notification
     if (assignedUser) {
       io.to(assignedUser.toString()).emit("task:assigned", {
-        message: "You have been assigned a new task",
+        message: `New task in project "${project.name}"`,
+        projectName: project.name,
         task: populatedTask,
       });
     }
