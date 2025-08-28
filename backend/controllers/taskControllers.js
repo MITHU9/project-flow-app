@@ -83,8 +83,17 @@ export const createTask = async (req, res) => {
 
     await task.save();
 
+    let deadlineValue = null;
+    if (deadline) {
+      const parsed = new Date(deadline);
+      if (!isNaN(parsed.getTime())) {
+        deadlineValue = parsed.toISOString();
+      }
+    }
+
     await sql.query(
-      `INSERT INTO task_reports (task_id, project_id, board_id, assigned_user, status, priority, deadline, created_at) 
+      `INSERT INTO task_reports 
+    (task_id, project_id, board_id, assigned_user, status, priority, deadline, created_at) 
    VALUES ($1,$2,$3,$4,$5,$6,$7,NOW())`,
       [
         task._id.toString(),
@@ -93,7 +102,7 @@ export const createTask = async (req, res) => {
         assignedUser || null,
         status,
         priority,
-        deadline || null,
+        deadlineValue,
       ]
     );
 
@@ -299,12 +308,27 @@ export const reorderTasks = async (req, res, next) => {
   try {
     const { tasks, sourceBoardId, destinationBoardId, movedTaskId } = req.body;
 
-    // 1. Update each task's order + boardId
+    // 1. Update each task's order + boardId + status (if moved across boards)
     for (const t of tasks) {
-      await Task.findByIdAndUpdate(t._id, {
+      let updateData = {
         order: t.order,
         boardId: t.boardId,
-      });
+      };
+
+      // If the moved task goes to another board → update its status
+      if (destinationBoardId && t._id.toString() === movedTaskId) {
+        const destBoard = await Board.findById(destinationBoardId);
+
+        if (destBoard?.title) {
+          const title = destBoard.title.toLowerCase();
+
+          if (title.includes("to do")) updateData.status = "todo";
+          else if (title.includes("progress")) updateData.status = "progress";
+          else if (title.includes("done")) updateData.status = "done";
+        }
+      }
+
+      await Task.findByIdAndUpdate(t._id, updateData);
     }
 
     // 2. Update boards' task arrays
@@ -329,7 +353,7 @@ export const reorderTasks = async (req, res, next) => {
         $pull: { tasks: movedTaskId },
       });
       await Board.findByIdAndUpdate(destinationBoardId, {
-        $addToSet: { tasks: movedTaskId }, // avoid duplicates
+        $addToSet: { tasks: movedTaskId },
       });
     }
 

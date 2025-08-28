@@ -36,7 +36,7 @@ const KanbanPage = () => {
   //console.log(user);
 
   return (
-    <div className="bg-white dark:bg-gray-900  min-h-screen text-gray-200">
+    <div className="bg-white dark:bg-gray-900  min-h-screen text-gray-200 px-3">
       {/* Header */}
       <div className="mb-6 p-4">
         <div className="flex items-center justify-between mb-4">

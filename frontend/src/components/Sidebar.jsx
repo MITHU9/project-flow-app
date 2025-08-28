@@ -128,7 +128,7 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
           </NavLink>
 
           <NavLink
-            to="/calendar"
+            to="/archive"
             className={({ isActive }) =>
               `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                 isActive

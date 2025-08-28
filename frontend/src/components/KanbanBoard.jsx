@@ -135,7 +135,7 @@ const KanbanBoard = ({ boards, id, currentUserId }) => {
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex flex-col lg:flex-row space-x-6 overflow-x-auto py-4 px-6 justify-center items-center lg:items-start gap-2">
+      <div className="flex flex-col lg:flex-row space-x-6 overflow-x-auto overflow-y-clip py-4 px-6 justify-center items-center lg:items-start gap-2 ">
         {localBoards.map((board) => (
           <Droppable droppableId={board._id} key={board._id}>
             {(provided) => (
@@ -168,7 +168,7 @@ const KanbanBoard = ({ boards, id, currentUserId }) => {
                       </button>
 
                       {/* Dropdown Menu */}
-                      <div className="absolute right-0 top-8 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
+                      <div className="absolute right-0 top-8 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20">
                         <div className="py-1">
                           <button className="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                             Rename Board
