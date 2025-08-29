@@ -1,8 +1,8 @@
 import axios from "axios";
 
 export const API = axios.create({
-  //baseURL: "http://localhost:3000/api",
-  baseURL: "https://project-flow-app-1.onrender.com/api",
+  baseURL: "http://localhost:5000/api",
+  //baseURL: "https://project-flow-app-1.onrender.com/api",
 });
 
 // Attach token to requests

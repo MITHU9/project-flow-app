@@ -16,7 +16,7 @@ export const useToggleSubTask = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["task"],
-      }); // refresh task data
+      });
     },
   });
 };

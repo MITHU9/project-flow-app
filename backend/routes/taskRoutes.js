@@ -2,6 +2,7 @@ import express from "express";
 
 import { protect } from "../middlewares/authMiddleware.js";
 import {
+  addComment,
   createTask,
   deleteTask,
   getTaskById,
@@ -16,8 +17,8 @@ const router = express.Router();
 
 router.post("/", protect, upload, createTask);
 router.patch("/subtask/:subTaskId/toggle", protect, toggleSubTask);
-
 router.patch("/reorder", protect, reorderTasks);
+router.post("/:taskId/comments", protect, addComment);
 
 router.get("/:id", protect, getTaskById);
 router.get("/:boardId", protect, getTasks);

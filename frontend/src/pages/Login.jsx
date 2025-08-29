@@ -87,10 +87,10 @@ const Login = () => {
 
           <button
             type="submit"
-            disabled={loginMutation.isLoading}
+            disabled={loginMutation.isPending}
             className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition cursor-pointer"
           >
-            {loginMutation.isLoading ? (
+            {loginMutation.isPending ? (
               "Logging in..."
             ) : (
               <>

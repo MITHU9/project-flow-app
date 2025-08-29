@@ -2,26 +2,39 @@ import { useEffect } from "react";
 import socket from "../utils/socket";
 import { queryClient } from "../utils/queryClient";
 
-export function useTaskRealtime(taskId, onSubTaskUpdate) {
+export function useTaskRealtime(taskId, handlers = {}) {
   useEffect(() => {
     if (!taskId) return;
 
     socket.connect();
     socket.emit("joinTask", taskId);
 
-    socket.on("subtask:updated", (updatedSubTask) => {
-      if (onSubTaskUpdate) {
-        onSubTaskUpdate(updatedSubTask);
-      }
+    // ✅ Subtask updates
+    const handleSubTaskUpdate = (updatedSubTask) => {
+      handlers.onSubTaskUpdate?.(updatedSubTask);
 
-      // Optionally refresh queries for this task/project
+      // Keep react-query cache in sync
       queryClient.invalidateQueries({
-        queryKey: ["tasks", "project", updatedSubTask.taskId],
+        queryKey: ["task", taskId],
       });
-    });
+    };
+
+    // ✅ Comment updates
+    const handleCommentAdded = (newComment) => {
+      handlers.onCommentAdded?.(newComment);
+
+      queryClient.invalidateQueries({
+        queryKey: ["task", taskId],
+      });
+    };
+
+    socket.on("subtask:updated", handleSubTaskUpdate);
+    socket.on("comment:added", handleCommentAdded);
 
     return () => {
-      socket.off("subtask:updated");
+      socket.off("subtask:updated", handleSubTaskUpdate);
+      socket.off("comment:added", handleCommentAdded);
+      socket.emit("leaveTask", taskId);
     };
-  }, [taskId, onSubTaskUpdate]);
+  }, [taskId, handlers]);
 }

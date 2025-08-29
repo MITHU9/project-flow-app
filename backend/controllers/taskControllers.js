@@ -304,6 +304,42 @@ export const toggleSubTask = async (req, res, next) => {
   }
 };
 
+// Add Comment
+export const addComment = async (req, res, next) => {
+  try {
+    const { taskId } = req.params;
+    const { text } = req.body;
+    const userId = req.user._id;
+
+    if (!text) {
+      return res.status(400).json({ message: "Comment text is required" });
+    }
+
+    // 1. Create new comment
+    const comment = await Comment.create({
+      text,
+      author: userId,
+      task: taskId,
+    });
+
+    // 2. Push its ID into the task
+    await Task.findByIdAndUpdate(taskId, {
+      $push: { comments: comment._id },
+    });
+
+    // 3. Populate author for frontend
+    await comment.populate("author", "name email");
+
+    // 4. Emit socket event
+    io.to(taskId.toString()).emit("comment:added", comment);
+
+    res.status(201).json(comment);
+  } catch (err) {
+    console.error("Add comment error:", err);
+    next(err);
+  }
+};
+
 // Update task order (supports cross-board)
 export const reorderTasks = async (req, res, next) => {
   try {
