@@ -11,6 +11,7 @@ import { useTaskSocket } from "../hooks/useTaskSocket";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import socket from "../utils/socket";
 import { API } from "../api/authApi";
+import { useReorderTasks } from "../hooks/useReorderTasks";
 
 const KanbanBoard = ({ boards, id, currentUserId }) => {
   const [openDialog, setOpenDialog] = useState(false);
@@ -19,6 +20,7 @@ const KanbanBoard = ({ boards, id, currentUserId }) => {
   const [localBoards, setLocalBoards] = useState(boards);
 
   const createTaskMutation = useCreateTask(id);
+  const reorderTasksMutation = useReorderTasks(id);
 
   // Socket hook for other events
   useTaskSocket(currentUserId);
@@ -125,22 +127,17 @@ const KanbanBoard = ({ boards, id, currentUserId }) => {
     }
     setLocalBoards(updatedBoards);
 
-    try {
-      const tasksToUpdate =
-        source.droppableId === destination.droppableId
-          ? updatedSourceTasks
-          : [...updatedSourceTasks, ...updatedDestTasks];
+    const tasksToUpdate =
+      source.droppableId === destination.droppableId
+        ? updatedSourceTasks
+        : [...updatedSourceTasks, ...updatedDestTasks];
 
-      // ✅ send extra info so backend knows it’s a cross-board move
-      await API.patch("/tasks/reorder", {
-        tasks: tasksToUpdate,
-        sourceBoardId: source.droppableId,
-        destinationBoardId: destination.droppableId,
-        movedTaskId: movedTask._id,
-      });
-    } catch (err) {
-      console.error("Error updating task order:", err);
-    }
+    reorderTasksMutation.mutate({
+      tasks: tasksToUpdate,
+      sourceBoardId: source.droppableId,
+      destinationBoardId: destination.droppableId,
+      movedTaskId: movedTask._id,
+    });
   };
 
   return (

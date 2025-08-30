@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useTaskRealtime } from "../hooks/useTaskRealtime";
 import { useMutation } from "@tanstack/react-query";
 import { API } from "../api/authApi";
+import { Loader2 } from "lucide-react";
 
 const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
   const [subTasks, setSubTasks] = useState([]);
@@ -51,7 +52,7 @@ const TaskDetailsModal = ({ isOpen, onClose, taskId }) => {
 
   if (isLoading) return null;
 
-  console.log(comments);
+  //console.log(comments);
 
   return (
     <Dialog

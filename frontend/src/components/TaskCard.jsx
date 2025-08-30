@@ -1,7 +1,10 @@
 import React from "react";
 import { Calendar, MessageCircle, Paperclip } from "lucide-react";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 const TaskCard = ({ task }) => {
+  const { user } = useAuthContext();
+
   const getPriorityColor = (priority) => {
     switch (priority) {
       case "high":
@@ -112,14 +115,27 @@ const TaskCard = ({ task }) => {
         {/* Footer: Assigned user & Deadline */}
         <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-700">
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center relative">
               <span className="text-white text-xs font-medium">
                 {task.assignedUser.name[0].toUpperCase()}
               </span>
+
+              {/* ✅ Small indicator dot if assigned to current user */}
+              {task.assignedUser.email === user.email && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></span>
+              )}
             </div>
+
             <span className="text-xs text-gray-500 dark:text-gray-400">
               {task?.assignedUser?.name.split(" ")[0]}
             </span>
+
+            {/* ✅ Text badge if assigned to current user */}
+            {task.assignedUser.email === user.email && (
+              <span className="text-[10px] px-1.5 py-0.5 bg-green-100 text-green-600 dark:bg-green-900/20 dark:text-green-400 rounded-full">
+                You
+              </span>
+            )}
           </div>
 
           <div

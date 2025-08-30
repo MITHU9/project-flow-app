@@ -122,7 +122,7 @@ export const createTask = async (req, res) => {
     // 🔔 If assignedUser exists, send a private notification
     if (assignedUser) {
       io.to(assignedUser.toString()).emit("task:assigned", {
-        message: `New task in project "${project.name}"`,
+        message: `You have been assigned a new task in project "${project.name}"`,
         projectName: project.name,
         task: populatedTask,
       });
@@ -315,23 +315,61 @@ export const addComment = async (req, res, next) => {
       return res.status(400).json({ message: "Comment text is required" });
     }
 
-    // 1. Create new comment
+    // 1. Create the comment
     const comment = await Comment.create({
       text,
       author: userId,
       task: taskId,
     });
 
-    // 2. Push its ID into the task
-    await Task.findByIdAndUpdate(taskId, {
-      $push: { comments: comment._id },
-    });
+    // 2. Push into task
+    const task = await Task.findByIdAndUpdate(
+      taskId,
+      { $push: { comments: comment._id } },
+      { new: true }
+    ).populate([
+      { path: "projectId", select: "createdBy members" },
+      { path: "assignedUser", select: "name email" },
+    ]);
 
-    // 3. Populate author for frontend
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
     await comment.populate("author", "name email");
 
-    // 4. Emit socket event
+    // 3. Emit comment event to task room
     io.to(taskId.toString()).emit("comment:added", comment);
+
+    // 4. Build notification payload
+    const notification = {
+      message: `${comment.author.name} commented on task "${task.title}"`,
+      text: comment.text,
+      createdAt: comment.createdAt,
+    };
+
+    // 5. Collect all recipients (owner + members + assigned user)
+    const recipients = new Set();
+
+    if (task.projectId?.createdBy) {
+      recipients.add(task.projectId.createdBy.toString());
+    }
+
+    if (task.assignedUser?._id) {
+      recipients.add(task.assignedUser._id.toString());
+    }
+
+    if (task.projectId?.members?.length > 0) {
+      task.projectId.members.forEach((m) => recipients.add(m.toString()));
+    }
+
+    // 6. Remove the author (don’t notify self)
+    recipients.delete(userId.toString());
+
+    // 7. Emit notifications to all recipients
+    recipients.forEach((recipientId) => {
+      io.to(recipientId).emit("notification:new", notification);
+    });
 
     res.status(201).json(comment);
   } catch (err) {

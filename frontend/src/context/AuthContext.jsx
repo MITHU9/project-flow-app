@@ -2,6 +2,7 @@ import { createContext } from "react";
 import { useMe } from "../hooks/useAuth";
 import { useState } from "react";
 import { useEffect } from "react";
+import socket from "../utils/socket";
 
 const AuthContext = createContext();
 
@@ -39,7 +40,30 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isDark]);
 
+  // 🔹 Listen for notifications
+  useEffect(() => {
+    if (!user) return;
+
+    socket.emit("joinRoom", user._id);
+
+    socket.on("notification:new", (notification) => {
+      setNotifications((prev) => {
+        const updated = [notification, ...prev];
+        localStorage.setItem("notifications", JSON.stringify(updated));
+        return updated;
+      });
+      setUnreadCount((prev) => prev + 1);
+    });
+
+    return () => {
+      socket.off("notification:new");
+    };
+  }, [user]);
+
   const toggleTheme = () => setIsDark(!isDark);
+
+  console.log("Notifications:", notifications);
+  console.log("Unread Count:", unreadCount);
 
   return (
     <AuthContext.Provider

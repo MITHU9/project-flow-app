@@ -124,17 +124,32 @@ const Navbar2 = () => {
                     <p className="font-medium text-gray-900 dark:text-white">
                       {n.message}
                     </p>
-                    <p className="text-gray-500 dark:text-gray-300 text-sm">
-                      Task: {n.task.title}
-                    </p>
-                    {n.projectName && (
+
+                    {n?.task?.title ? (
+                      <p className="text-gray-500 dark:text-gray-300 text-sm">
+                        Task: {n.task.title}
+                      </p>
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-300 text-sm">
+                        Comment: {n.text}
+                      </p>
+                    )}
+
+                    {n?.projectName && (
                       <p className="text-blue-500 dark:text-blue-400 text-xs font-medium">
                         Project: {n.projectName}
                       </p>
                     )}
-                    <p className="text-gray-400 dark:text-gray-400 text-xs">
-                      Deadline: {new Date(n.task.deadline).toLocaleString()}
-                    </p>
+
+                    {n?.task?.deadline ? (
+                      <p className="text-gray-400 dark:text-gray-400 text-xs">
+                        Deadline: {new Date(n.task.deadline).toLocaleString()}
+                      </p>
+                    ) : (
+                      <p className="text-gray-400 dark:text-gray-400 text-xs">
+                        Created At: {new Date(n.createdAt).toLocaleString()}
+                      </p>
+                    )}
                   </div>
                   <button
                     onClick={(e) => {
