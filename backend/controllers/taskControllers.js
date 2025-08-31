@@ -5,6 +5,7 @@ import Board from "../models/Board.js";
 import Project from "../models/Project.js";
 import { io } from "../index.js";
 import { sql } from "../config/dbSQL.js";
+import { recalcUserPerformance } from "../utils/etl.js";
 
 // ---------------- Create Task ----------------
 export const createTask = async (req, res) => {
@@ -105,6 +106,9 @@ export const createTask = async (req, res) => {
         deadlineValue,
       ]
     );
+
+    // 🔄 Recalculate analytics
+    await recalcUserPerformance();
 
     // 4️⃣ Add task to board
     board.tasks.push(task._id);
@@ -259,6 +263,8 @@ export const updateTask = async (req, res) => {
         task._id.toString(),
       ]
     );
+
+    await recalcUserPerformance();
 
     const populatedTask = await Task.findById(task._id)
       .populate("assignedUser")

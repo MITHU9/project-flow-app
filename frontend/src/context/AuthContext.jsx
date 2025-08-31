@@ -62,8 +62,8 @@ export const AuthProvider = ({ children }) => {
 
   const toggleTheme = () => setIsDark(!isDark);
 
-  console.log("Notifications:", notifications);
-  console.log("Unread Count:", unreadCount);
+  // console.log("Notifications:", notifications);
+  // console.log("Unread Count:", unreadCount);
 
   return (
     <AuthContext.Provider

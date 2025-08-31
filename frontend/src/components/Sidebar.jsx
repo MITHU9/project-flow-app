@@ -9,6 +9,7 @@ import {
   Bell,
   Archive,
   Trash2,
+  Loader2,
 } from "lucide-react";
 import { useState } from "react";
 import CreateProjectModal from "./CreateProjectModal";
@@ -21,6 +22,8 @@ import { queryClient } from "../utils/queryClient";
 
 const Sidebar = ({ isCollapsed, onToggle }) => {
   const [open, setOpen] = useState(false);
+  const [deletingProjectId, setDeletingProjectId] = useState(null);
+
   const createProject = useCreateProject();
   const deleteProject = useDeleteProject();
   const { user, notifications } = useAuthContext();
@@ -37,6 +40,24 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
           "Error creating project:",
           err.response?.data || err.message
         );
+      },
+    });
+  };
+
+  const handleDeleteProject = (projectId) => {
+    setDeletingProjectId(projectId);
+    deleteProject.mutate(projectId, {
+      onSuccess: () => {
+        toast.success("Project deleted successfully!");
+        queryClient.invalidateQueries({
+          queryKey: ["projects", projectId],
+        });
+        setDeletingProjectId(null);
+      },
+      onError: (err) => {
+        toast.error("Failed to delete project");
+        console.error(err);
+        setDeletingProjectId(null);
       },
     });
   };
@@ -244,25 +265,17 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
                           project.createdBy?.toString() ===
                             user._id.toString() && (
                             <button
-                              onClick={() =>
-                                deleteProject.mutate(project._id, {
-                                  onSuccess: () => {
-                                    toast.success(
-                                      "Project deleted successfully!"
-                                    );
-                                    queryClient.invalidateQueries({
-                                      queryKey: ["projects", project._id],
-                                    });
-                                  },
-                                  onError: (err) => {
-                                    toast.error("Failed to delete project");
-                                    console.error(err);
-                                  },
-                                })
-                              }
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleDeleteProject(project._id);
+                              }}
                               className="p-1 rounded cursor-pointer"
                             >
-                              <Trash2 className="h-4 w-4 text-red-500" />
+                              {deletingProjectId === project._id ? (
+                                <Loader2 className="h-4 w-4 text-gray-400 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              )}
                             </button>
                           )}
                       </div>

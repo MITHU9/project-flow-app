@@ -3,6 +3,8 @@ import Board from "../models/Board.js";
 import Task from "../models/Task.js";
 import Comment from "../models/Comment.js";
 import Subtask from "../models/Subtask.js";
+import { sql } from "../config/dbSQL.js";
+import { recalcUserPerformance } from "../utils/etl.js";
 
 // Create new project
 export const createProject = async (req, res) => {
@@ -124,6 +126,14 @@ export const deleteProject = async (req, res) => {
 
     // 4. Finally, delete the project itself
     await Project.findByIdAndDelete(projectId);
+
+    // 🔹 Delete Postgres task_reports for this project
+    await sql.query("DELETE FROM task_reports WHERE project_id = $1", [
+      projectId,
+    ]);
+
+    // 🔄 Recalculate analytics
+    await recalcUserPerformance();
 
     res.json({ message: "Project and all related data deleted successfully" });
   } catch (err) {
