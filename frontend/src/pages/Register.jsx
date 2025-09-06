@@ -29,9 +29,24 @@ const Register = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-2">
+    <div
+      className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 
+                    bg-gradient-to-br from-green-50 via-white to-green-100"
+    >
+      {/* Animated background blobs */}
+      <div className="absolute top-[-100px] left-[-120px] w-[400px] h-[400px] bg-green-300/40 clip-path-blob blur-3xl animate-float" />
+      <div
+        className="absolute bottom-[-120px] right-[-150px] w-[500px] h-[500px] bg-green-500/30 clip-path-blob blur-2xl animate-float"
+        style={{ animationDelay: "2s" }}
+      />
+      <div
+        className="absolute top-[200px] right-[50px] w-[300px] h-[300px] bg-green-200/30 clip-path-blob blur-2xl animate-float"
+        style={{ animationDelay: "4s" }}
+      />
+
+      {/* Register Card */}
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-xl shadow-2xl p-8 relative z-10 border border-gray-200 clip-path-card">
+        <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">
           Create your ProjectFlow account
         </h2>
         <p className="text-gray-500 text-center mb-6">
@@ -40,12 +55,12 @@ const Register = () => {
 
         {/* OAuth Buttons */}
         <div className="flex flex-col gap-3 mb-6">
-          <button className="flex items-center justify-center gap-2 w-full border text-gray-600 border-gray-300 rounded-lg py-2 hover:bg-gray-50 transition">
+          <button className="flex text-gray-700 items-center justify-center gap-2 w-full border border-gray-300 rounded-lg py-2 bg-white/70 hover:bg-gray-50 transition">
             <Chrome className="w-5 h-5 text-red-500" />
             Continue with Google
           </button>
-          <button className="flex items-center justify-center gap-2 w-full border text-gray-600 border-gray-300 rounded-lg py-2 hover:bg-gray-50 transition">
-            <Github className="w-5 h-5" />
+          <button className="flex items-center justify-center gap-2 w-full border border-gray-300 rounded-lg py-2 bg-white/70 text-gray-700 hover:bg-gray-50 transition">
+            <Github className="w-5 h-5 text-gray-600" />
             Continue with GitHub
           </button>
         </div>

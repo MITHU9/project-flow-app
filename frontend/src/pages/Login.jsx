@@ -29,9 +29,14 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold text-gray-800 text-center mb-2">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 px-4">
+      {/* Background wave layers */}
+      <div className="absolute top-0 left-0 w-full h-[50vh] bg-blue-300/40 clip-path-wave-1" />
+      <div className="absolute bottom-0 left-0 w-full h-[60vh] bg-blue-500/30 clip-path-wave-2" />
+
+      {/* Login Card */}
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-xl shadow-2xl p-8 relative z-10 border border-gray-200 clip-path-card-wave">
+        <h2 className="text-3xl font-bold text-gray-800 text-center mb-2">
           Welcome back to ProjectFlow
         </h2>
         <p className="text-gray-500 text-center mb-6">
@@ -40,11 +45,11 @@ const Login = () => {
 
         {/* OAuth Buttons */}
         <div className="flex flex-col gap-3 mb-6">
-          <button className="flex items-center justify-center gap-2 w-full border border-gray-300 text-gray-600 rounded-lg py-2 hover:bg-gray-50 transition">
+          <button className="flex items-center justify-center gap-2 w-full border border-gray-300 text-gray-600 rounded-lg py-2 bg-white/70 hover:bg-gray-50 transition">
             <Chrome className="w-5 h-5 text-red-500" />
             Continue with Google
           </button>
-          <button className="flex items-center justify-center gap-2 w-full border border-gray-300 text-gray-600 rounded-lg py-2 hover:bg-gray-50 transition">
+          <button className="flex items-center justify-center gap-2 w-full border border-gray-300 text-gray-600 rounded-lg py-2 bg-white/70 hover:bg-gray-50 transition">
             <Github className="w-5 h-5" />
             Continue with GitHub
           </button>
